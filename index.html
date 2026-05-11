@@ -524,15 +524,15 @@
 
           <div class="agreement">
             <div>
-              <div class="agree-num">69<span class="stat-unit">%</span></div>
-              <div class="agree-cap">Annotators 1 &amp; 2<br/><span class="muted">κ = 0.51</span></div>
+              <div class="agree-num">46<span class="stat-unit">%</span></div>
+              <div class="agree-cap">A1 &amp; A2 exact-day DDX<br/><span class="muted">avg. disagreement 15.3 d</span></div>
             </div>
             <div>
-              <div class="agree-num">77<span class="stat-unit">%</span></div>
-              <div class="agree-cap">Annotators 1 &amp; 3<br/><span class="muted">κ = 0.61</span></div>
+              <div class="agree-num">63<span class="stat-unit">%</span></div>
+              <div class="agree-cap">A1 &amp; A3 exact-day DDX<br/><span class="muted">avg. disagreement 5.7 d</span></div>
             </div>
           </div>
-          <p class="muted small">→ fair-to-good inter-annotator agreement across pairs.</p>
+          <p class="muted small">For DX class labels, agreement was 69% / 77% (κ = 0.51 / 0.61). Exact DDX labels were assigned for 105 PP users.</p>
         </div>
 
         <div class="col">
@@ -545,7 +545,7 @@
 
           <div class="rule-card fragment">
             <div class="rule-tag">Timeline (DDX)</div>
-            <p>If annotators disagree by ≤ 7 days → default to the <strong>later</strong> day, ensuring the label falls <em>after</em> pathology confirmation.</p>
+            <p>Disagreements <strong>&gt; 7 days</strong> were discussed and resolved; disagreements of <strong>1–7 days</strong> defaulted to the <strong>later</strong> day.</p>
           </div>
         </div>
       </div>
@@ -677,7 +677,7 @@
       <header class="slide-header">
         <div class="slide-kicker">Putting it together</div>
         <h2>From queries to feature vector</h2>
-        <p class="slide-lede">What MART actually sees for one user — every history collapses into a single row of numbers.</p>
+        <p class="slide-lede">For DX, MART sees one aggregate row per user history. The later DDX model builds day-specific vectors around candidate dates.</p>
       </header>
 
       <div class="qv-flow">
@@ -724,7 +724,7 @@
       </div>
 
       <div class="callout">
-        Every user collapses to <strong>one row</strong> of feature values — ontology-category counts &amp; ratios plus behavioral features (volume, temporal, boundary, conjunctions). MART then learns which combinations predict <strong>P(user = PP)</strong>.
+        The DX model collapses each user to <strong>one row</strong> of feature values — ontology-category counts &amp; ratios plus behavioral features (volume, temporal, boundary, conjunctions). MART then learns which combinations predict <strong>P(user = PP)</strong>.
       </div>
     </section>
 
@@ -880,7 +880,7 @@
         </div>
 
         <div class="math-eq">
-          <div class="math-eq-tag">Joint probability — Equation 2 of the paper</div>
+          <div class="math-eq-tag">Combined prediction rule</div>
           <div class="math-formula">
             P(d) <span class="math-prop">∝</span> P(d ∈ window | <code class="math-sym--ad">θ<sub>AD</sub></code>)<br/>
             <span class="math-indent">· P(d = 1 | d ∈ window, <code class="math-sym--ww">θ<sub>WW</sub></code>)</span><br/>
@@ -888,7 +888,7 @@
             <span class="math-indent">· P(d+1 = 1 | <code class="math-sym--hb">θ<sub>HB</sub></code>)</span>
           </div>
           <div class="math-formula math-formula--sub">
-            <span class="math-sub-tag">where the window probability itself is a sum:</span><br/>
+            <span class="math-sub-tag">Equation 2 gives the coarse-to-fine AD/WW term; the HB terms are multiplied afterward:</span><br/>
             P(d ∈ window | <code class="math-sym--ad">θ<sub>AD</sub></code>) = <span class="math-big">Σ</span><sub>i=d−14..d</sub> P(win = {i, …, i+14})
           </div>
         </div>
@@ -1063,11 +1063,11 @@
       <div class="two-mini fragment">
         <div class="mini">
           <strong>Error nuance</strong>
-          <p>DDX errors are roughly symmetric — <strong>52%</strong> of mistakes are <em>too early</em>. Aligns with intense search activity while <em>awaiting</em> biopsy results.</p>
+          <p>DDX errors are roughly symmetric — <strong>52%</strong> of mistakes are <em>too early</em>. This fits intense search activity while <em>awaiting</em> biopsy results.</p>
         </div>
         <div class="mini">
           <strong>Ablation insight</strong>
-          <p>Removing the <em>DESCRIPTION</em> category (stage / grade terms) collapses DDX accuracy → staging searches are the sharpest diagnosis signal.</p>
+          <p>Removing the <em>DESCRIPTION</em> category (type / stage / grade terms) hurts DDX accuracy most, making descriptive cancer terms the strongest timing signal.</p>
         </div>
       </div>
 
@@ -1255,7 +1255,7 @@
       <div class="two-col">
         <div class="col">
           <h3 class="col-title">Clinical reality check</h3>
-          <p>Real-world studies report a <strong>median 29 days</strong> from suspicious mammogram to diagnosis. The search-log average is slightly shorter — patients search for treatments <em>before</em> the procedure happens.</p>
+          <p>Real-world studies report a <strong>median 29 days</strong> from suspicious mammogram to diagnosis. The search-log average is slightly shorter because searchers may look up treatments <em>before</em> the procedure happens.</p>
         </div>
         <div class="col">
           <h3 class="col-title">The disruption</h3>
@@ -1309,7 +1309,7 @@
           <div class="origin-card origin-card--scr fragment">
             <div class="origin-icon">🔬</div>
             <h3>No symptom queries</h3>
-            <p>Users with <em>no</em> symptom queries prior to diagnosis — likely caught at routine screening.</p>
+            <p>Users with <em>no</em> symptom queries prior to diagnosis — consistent with routine-screening patterns.</p>
             <div class="origin-stat">
               avg. stage <strong>1.54</strong>
             </div>
@@ -1429,7 +1429,7 @@
       <div class="conclusion-grid">
         <div class="conc-card fragment">
           <h3>📜 Summary</h3>
-          <p>Large-scale anonymized search logs contain rich temporal signals that effectively map to the real-world clinical life-cycle of serious illness.</p>
+          <p>Large-scale anonymized search logs contain temporal signals that align with clinical episodes of serious illness.</p>
         </div>
 
         <div class="conc-card fragment">
@@ -1439,7 +1439,7 @@
 
         <div class="conc-card fragment">
           <h3>💡 Broader impact</h3>
-          <p>A new framework for understanding the evolving, day-to-day information gaps of patients — paving the way for smarter decision-support systems in healthcare.</p>
+          <p>A new framework for understanding evolving, day-to-day health information gaps — paving the way for smarter decision-support systems.</p>
         </div>
       </div>
 
