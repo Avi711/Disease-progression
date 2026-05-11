@@ -45,8 +45,8 @@
         <div class="title-goal">
           <span class="label">Goal of this talk</span>
           Understand how anonymized search logs &amp; machine learning can
-          detect and track the evolving informational needs of patients
-          newly diagnosed with breast cancer.
+          detect searchers whose behavior is consistent with a new breast
+          cancer diagnosis, then track how their information needs evolve.
         </div>
       </div>
       <div class="title-decoration" aria-hidden="true">
@@ -120,7 +120,7 @@
           <h3 class="col-title">The algorithmic challenge</h3>
           <p>Search logs are extremely noisy. How do we tell apart…</p>
           <ul class="quiet-list">
-            <li>a newly diagnosed patient</li>
+            <li>a searcher consistent with a new diagnosis</li>
             <li>a medical student studying the disease</li>
             <li>someone who has had the illness for years</li>
           </ul>
@@ -208,7 +208,7 @@
         <div class="col">
           <div class="stat-block">
             <div class="stat-num">867</div>
-            <div class="stat-cap">U.S. Microsoft employees surveyed · <strong>6 %</strong> personally diagnosed with any cancer · <strong>13.5 %</strong> of those with breast cancer (≈ 7 people)</div>
+            <div class="stat-cap">U.S. Microsoft employees surveyed · <strong>6 %</strong> personally diagnosed with any cancer · breast cancer was <strong>13.5 %</strong> of specified cancer-type responses</div>
           </div>
           <div class="stat-block stat-block--accent">
             <div class="stat-num">2.62<span class="stat-unit">×</span></div>
@@ -225,7 +225,7 @@
             <div class="impact-arrow">→</div>
             <div>
               <strong>Impact on the model</strong>
-              <p>The survey directly seeded the 7 <em>experiential categories</em> later used as features in the MART classifier:</p>
+              <p>The survey motivated the 7 <em>experiential categories</em> later used as features in the MART classifier:</p>
               <div class="exp-cats">
                 <span class="exp-cat">Cosmetic</span>
                 <span class="exp-cat">Description</span>
@@ -284,7 +284,7 @@
         <div class="funnel-step funnel-step--3">
           <div class="funnel-num">~1,700</div>
           <div class="funnel-cap">
-            <strong>High-confidence patients <span class="muted">· ~90% precision</span></strong>
+            <strong>High-confidence likely-diagnosis searchers <span class="muted">· ~90% precision</span></strong>
             <p>The cohort used for the population timeline &amp; stage analyses later in the paper.</p>
           </div>
         </div>
@@ -292,7 +292,7 @@
 
       <div class="callout">
         <strong>Secondary source — comScore.</strong>
-        A market-research firm that tracks a consenting panel of US users with verified demographics. Used to check that the algorithm's high-probability patients skew female and older — matching real breast cancer incidence.
+        A market-research firm that tracks a consenting panel of US users with verified demographics. Used to check that high-probability searchers skew female and older — matching real breast cancer incidence.
       </div>
     </section>
 
@@ -504,7 +504,7 @@
       </div>
 
       <p class="figure-caption">
-        From a symptom &amp; biopsy phase, the user pivots <em>within 24 minutes</em> on Dec 12 — staging → type → grading → prognosis → reconstruction. That sudden shift is exactly the signal the DDX classifier locks onto.
+        From a symptom &amp; biopsy phase, the user pivots <em>within 24 minutes</em> on Dec 12 — staging → type → grading → prognosis. Later that day, searches move into reconstruction. That sudden shift is exactly the signal the DDX classifier locks onto.
       </p>
     </section>
 
@@ -718,13 +718,13 @@
             <tr><td>days_diag→treat</td><td>2</td></tr>
             <tr><td>has_expert_term</td><td>0</td></tr>
             <tr><td>last_10_days_flag</td><td>0</td></tr>
-            <tr class="qv-more"><td colspan="2">… ~200 dims total</td></tr>
+            <tr class="qv-more"><td colspan="2">… plus conjunction &amp; timeline features</td></tr>
           </table>
         </div>
       </div>
 
       <div class="callout">
-        Every user collapses to <strong>one row</strong> of ~200 numbers — 127 ontology-category counts &amp; ratios + behavioral features (volume, temporal, boundary). MART then learns which combinations of these numbers predict <strong>P(user = PP)</strong>.
+        Every user collapses to <strong>one row</strong> of feature values — ontology-category counts &amp; ratios plus behavioral features (volume, temporal, boundary, conjunctions). MART then learns which combinations predict <strong>P(user = PP)</strong>.
       </div>
     </section>
 
@@ -957,7 +957,7 @@
             <text x="730" y="170" text-anchor="middle" font-size="16" font-weight="600">MART · DX</text>
             <text x="730" y="192" text-anchor="middle" font-size="11">N vs P  ·  PN vs PP</text>
             <text x="730" y="210" text-anchor="middle" font-size="11">joint probability</text>
-            <text x="730" y="226" text-anchor="middle" font-size="11" fill="#D5614A">→ is this a patient?</text>
+            <text x="730" y="226" text-anchor="middle" font-size="11" fill="#D5614A">→ likely diagnosis?</text>
           </g>
           <line x1="820" y1="190" x2="860" y2="190" stroke="#1A2A44" stroke-width="2" marker-end="url(#arrowhead)"/>
 
@@ -1080,18 +1080,18 @@
     <section class="slide" data-title="Epi Validation">
       <header class="slide-header">
         <div class="slide-kicker">Validation without ground truth</div>
-        <h2>Does the population look like real patients?</h2>
+        <h2>Does the population match real incidence?</h2>
         <p class="slide-lede">No user identities → validate at the <em>aggregate</em> level.</p>
       </header>
 
       <div class="two-col">
         <div class="col">
           <h3 class="col-title">Geographic alignment</h3>
-          <p>Predicted patient density vs. <strong>CDC</strong> state-by-state incidence:</p>
+          <p>Predicted likely-diagnosis searcher density vs. <strong>CDC</strong> state-by-state incidence:</p>
 
           <div class="corr-block">
             <div class="corr-row">
-              <span class="corr-label">High-probability patients</span>
+              <span class="corr-label">High-probability searchers</span>
               <div class="corr-bar"><div class="corr-fill" style="--w:74%"></div></div>
               <span class="corr-value">r = 0.348</span>
             </div>
@@ -1127,7 +1127,7 @@
       <header class="slide-header">
         <div class="slide-kicker">Episode discovery</div>
         <h2>A block HMM learns the clinical sequence</h2>
-        <p class="slide-lede">A <em>block HMM</em> = a regular HMM, but each day emits a <strong>bag of ontology categories</strong> instead of a single symbol — because a real day has many queries. 5 states · DDX state is constrained.</p>
+        <p class="slide-lede">A <em>block HMM</em> = a regular HMM, but each day emits a <strong>bag of ontology categories</strong> instead of a single symbol. The model uses 5 states; the DDX state is fixed to each user's inferred diagnosis day.</p>
       </header>
 
       <div class="hmm-svg">
@@ -1189,10 +1189,10 @@
       </div>
 
       <div class="callout">
-        The HMM didn’t know any of the medical sequence in advance — it
-        <em>discovered</em> it: pre-DDX → DDX → branching into immediate
-        surgery vs long-term chemo. Background emissions are isolated so
-        clinical transitions stay clean.
+        On 558 high-confidence timelines, the constrained HMM recovers a
+        sequence consistent with the clinical story: pre-DDX → DDX → branching
+        into immediate surgery vs long-term chemo. Background emissions are
+        isolated so clinical transitions stay clean.
       </div>
     </section>
 
@@ -1289,7 +1289,7 @@
     <section class="slide" data-title="Stage vs Origin">
       <header class="slide-header">
         <div class="slide-kicker">Predictive insight</div>
-        <h2>How the journey starts predicts the stage</h2>
+        <h2>How the journey starts relates to inferred stage</h2>
       </header>
 
       <div class="two-col">
@@ -1301,7 +1301,7 @@
             <div class="origin-stat">
               avg. stage <strong>1.83</strong>
             </div>
-            <p class="muted small">Symptom-prompted workups usually find more advanced cancers.</p>
+            <p class="muted small">Directionally consistent with symptom-prompted workups finding more advanced cancers.</p>
           </div>
         </div>
 
@@ -1319,8 +1319,8 @@
       </div>
 
       <div class="callout fragment">
-        The logs not only locate <em>when</em> the diagnosis happened — they
-        partially reveal <em>how</em> it was found.
+        The logs may not only locate <em>when</em> the diagnosis happened — they
+        may partially reveal <em>how</em> it was found.
       </div>
 
       <p class="footnote">⚠ Suggestive, not statistically significant — the paper reports <strong>p = 0.154</strong>. A directional signal consistent with clinical reality, but not a confirmed effect.</p>
@@ -1341,7 +1341,7 @@
       </div>
 
       <p class="figure-caption">
-        Stage IV patients spike <em>lower</em> on screening (fewer routine catches) and <em>higher and longer</em> on chemotherapy — the search log faithfully mirrors the clinical course of more advanced disease.
+        Stage IV-associated searchers spike <em>lower</em> on screening and <em>higher and longer</em> on chemotherapy — patterns consistent with the clinical course of more advanced disease.
       </p>
     </section>
 
