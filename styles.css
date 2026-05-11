@@ -1345,6 +1345,26 @@ code, .mono { font-family: var(--font-mono); font-size: 0.95em; }
 .p-node--hmm rect   { fill: var(--ink); stroke: var(--ink); }
 .p-node--hmm text   { fill: white !important; }
 .p-node text { fill: var(--ink); font-family: var(--font-body); }
+.p-stage-label rect {
+  fill: var(--bg-2);
+  stroke: var(--line);
+}
+.p-stage-label--predict rect {
+  fill: #FCEFE9;
+  stroke: rgba(213,97,74,0.35);
+}
+.p-stage-label--analysis rect {
+  fill: var(--ink);
+  stroke: var(--ink);
+}
+.p-stage-label text {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 700;
+  fill: var(--ink-soft);
+}
+.p-stage-label--predict text { fill: var(--accent-2); }
+.p-stage-label--analysis text { fill: white; }
 
 /* -------------------------------------------------------------------
    SLIDE 14 — results bars

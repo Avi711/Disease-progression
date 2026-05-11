@@ -906,7 +906,8 @@
     <section class="slide" data-title="Full Pipeline">
       <header class="slide-header">
         <div class="slide-kicker">Putting it together</div>
-        <h2>End-to-end pipeline</h2>
+        <h2>Two prediction tasks, then timeline analysis</h2>
+        <p class="slide-lede">First identify likely new-diagnosis searchers (DX), then estimate their diagnosis day (DDX), then align histories to study episodes.</p>
       </header>
 
       <div class="pipeline-svg">
@@ -916,6 +917,20 @@
               <path d="M0,0 L0,6 L9,3 z" fill="#1A2A44"/>
             </marker>
           </defs>
+
+          <!-- Stage labels -->
+          <g class="p-stage-label">
+            <rect x="20" y="38" width="620" height="28" rx="14"/>
+            <text x="330" y="57" text-anchor="middle">1. Filter corpus, then extract features</text>
+          </g>
+          <g class="p-stage-label p-stage-label--predict">
+            <rect x="690" y="38" width="350" height="28" rx="14"/>
+            <text x="865" y="57" text-anchor="middle">2. Predict DX, then DDX</text>
+          </g>
+          <g class="p-stage-label p-stage-label--analysis">
+            <rect x="1060" y="38" width="120" height="28" rx="14"/>
+            <text x="1120" y="57" text-anchor="middle">3. Episode analysis</text>
+          </g>
 
           <!-- Input -->
           <g class="p-node p-node--input">
@@ -936,51 +951,50 @@
           <line x1="380" y1="190" x2="420" y2="190" stroke="#1A2A44" stroke-width="2" marker-end="url(#arrowhead)"/>
 
           <!-- Features -->
-          <g class="p-node p-node--feat">
-            <rect x="420" y="80" width="180" height="80" rx="10"/>
-            <text x="510" y="110" text-anchor="middle" font-size="14" font-weight="600">Ontology features</text>
-            <text x="510" y="130" text-anchor="middle" font-size="11">1,963 terms · 3 levels</text>
-            <text x="510" y="146" text-anchor="middle" font-size="11">EXPERT filter</text>
+          <g class="p-node p-node--feat p-node--features">
+            <rect x="420" y="96" width="220" height="188" rx="10"/>
+            <text x="530" y="124" text-anchor="middle" font-size="15" font-weight="700">Feature extraction</text>
+            <text x="440" y="150" font-size="11" font-weight="700">Ontology / lexical</text>
+            <text x="440" y="166" font-size="10.5">1,963 terms · 3 levels · EXPERT flag</text>
+            <text x="440" y="194" font-size="11" font-weight="700">Query phrasing</text>
+            <text x="440" y="210" font-size="10.5">pronouns · experiential phrases</text>
+            <text x="440" y="238" font-size="11" font-weight="700">Volume patterns</text>
+            <text x="440" y="254" font-size="10.5">cancer-query ratios · category counts</text>
+            <text x="440" y="272" font-size="11" font-weight="700">Temporal / boundary</text>
           </g>
-          <g class="p-node p-node--feat">
-            <rect x="420" y="180" width="180" height="80" rx="10"/>
-            <text x="510" y="210" text-anchor="middle" font-size="14" font-weight="600">Behavioral features</text>
-            <text x="510" y="230" text-anchor="middle" font-size="11">volume · temporal</text>
-            <text x="510" y="246" text-anchor="middle" font-size="11">query-level · boundary</text>
-          </g>
-          <line x1="600" y1="120" x2="640" y2="170" stroke="#1A2A44" stroke-width="2" marker-end="url(#arrowhead)"/>
-          <line x1="600" y1="220" x2="640" y2="200" stroke="#1A2A44" stroke-width="2" marker-end="url(#arrowhead)"/>
+          <line x1="640" y1="190" x2="690" y2="190" stroke="#1A2A44" stroke-width="2" marker-end="url(#arrowhead)"/>
 
           <!-- DX -->
           <g class="p-node p-node--mart">
-            <rect x="640" y="140" width="180" height="100" rx="10"/>
-            <text x="730" y="170" text-anchor="middle" font-size="16" font-weight="600">MART · DX</text>
-            <text x="730" y="192" text-anchor="middle" font-size="11">N vs P  ·  PN vs PP</text>
-            <text x="730" y="210" text-anchor="middle" font-size="11">joint probability</text>
-            <text x="730" y="226" text-anchor="middle" font-size="11" fill="#D5614A">→ likely diagnosis?</text>
+            <rect x="690" y="140" width="160" height="100" rx="10"/>
+            <text x="770" y="164" text-anchor="middle" font-size="16" font-weight="600">MART · DX</text>
+            <text x="770" y="184" text-anchor="middle" font-size="11">Who looks like PP?</text>
+            <text x="770" y="202" text-anchor="middle" font-size="11">N vs P · PN vs PP</text>
+            <text x="770" y="222" text-anchor="middle" font-size="11" fill="#D5614A">→ likely searcher</text>
           </g>
-          <line x1="820" y1="190" x2="860" y2="190" stroke="#1A2A44" stroke-width="2" marker-end="url(#arrowhead)"/>
+          <line x1="850" y1="190" x2="880" y2="190" stroke="#1A2A44" stroke-width="2" marker-end="url(#arrowhead)"/>
 
           <!-- DDX -->
           <g class="p-node p-node--mart">
-            <rect x="860" y="140" width="180" height="100" rx="10"/>
-            <text x="950" y="170" text-anchor="middle" font-size="16" font-weight="600">MART · DDX</text>
-            <text x="950" y="192" text-anchor="middle" font-size="11">window · day · state</text>
-            <text x="950" y="210" text-anchor="middle" font-size="11">coarse-to-fine</text>
-            <text x="950" y="226" text-anchor="middle" font-size="11" fill="#D5614A">→ which day?</text>
+            <rect x="880" y="140" width="160" height="100" rx="10"/>
+            <text x="960" y="164" text-anchor="middle" font-size="16" font-weight="600">MART · DDX</text>
+            <text x="960" y="184" text-anchor="middle" font-size="11">When is day 0?</text>
+            <text x="960" y="202" text-anchor="middle" font-size="11">window · day · state</text>
+            <text x="960" y="222" text-anchor="middle" font-size="11" fill="#D5614A">→ diagnosis day</text>
           </g>
           <line x1="1040" y1="190" x2="1080" y2="190" stroke="#1A2A44" stroke-width="2" marker-end="url(#arrowhead)"/>
 
           <!-- HMM -->
           <g class="p-node p-node--hmm">
             <rect x="1080" y="140" width="100" height="100" rx="10"/>
-            <text x="1130" y="180" text-anchor="middle" font-size="14" font-weight="600">HMM</text>
-            <text x="1130" y="200" text-anchor="middle" font-size="11">episode</text>
-            <text x="1130" y="216" text-anchor="middle" font-size="11">discovery</text>
+            <text x="1130" y="180" text-anchor="middle" font-size="14" font-weight="600">block HMM</text>
+            <text x="1130" y="200" text-anchor="middle" font-size="11">aligned</text>
+            <text x="1130" y="216" text-anchor="middle" font-size="11">episodes</text>
           </g>
 
           <!-- Validation arrows -->
-          <text x="600" y="310" text-anchor="middle" font-size="12" fill="#4A5870">↑ validated against CDC incidence &amp; comScore demographics</text>
+          <text x="600" y="310" text-anchor="middle" font-size="12" fill="#4A5870">Validation without ground truth: CDC incidence &amp; comScore demographics</text>
+          <text x="840" y="342" text-anchor="middle" font-size="13" fill="#D5614A" font-weight="600">DX = who? · DDX = when?</text>
         </svg>
       </div>
     </section>
