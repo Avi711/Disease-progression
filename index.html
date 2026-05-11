@@ -199,22 +199,22 @@
     <!-- =========================================================== -->
     <section class="slide" data-title="Preliminary Survey">
       <header class="slide-header">
-        <div class="slide-kicker">Step 0 — the “why”</div>
-        <h2>What does a real patient actually search for?</h2>
-        <p class="slide-lede">Before any ML, the authors asked 867 Microsoft employees.</p>
+        <div class="slide-kicker">Step 0 — motivation, not validation</div>
+        <h2>What might a real patient search for?</h2>
+        <p class="slide-lede">Before any ML, the authors surveyed 867 Microsoft employees — <em>not</em> a patient sample. The paper itself notes the panel is <em>"not representative of the general population"</em>.</p>
       </header>
 
       <div class="two-col">
         <div class="col">
           <div class="stat-block">
             <div class="stat-num">867</div>
-            <div class="stat-cap">U.S. respondents surveyed</div>
+            <div class="stat-cap">U.S. Microsoft employees surveyed · <strong>6 %</strong> personally diagnosed with any cancer · <strong>13.5 %</strong> of those with breast cancer (≈ 7 people)</div>
           </div>
           <div class="stat-block stat-block--accent">
             <div class="stat-num">2.62<span class="stat-unit">×</span></div>
-            <div class="stat-cap">Diagnosed respondents more likely to search for <em>explanations of pathology reports</em></div>
+            <div class="stat-cap">Respondents personally diagnosed with cancer were more likely to search for <em>explanations of pathology reports</em> than non-diagnosed respondents</div>
           </div>
-          <p class="muted small">Also significantly more likely to search for staging / grading, healthcare providers, and treatment side effects.</p>
+          <p class="muted small">Also more likely to search for staging / grading, healthcare providers, and treatment side effects.</p>
         </div>
 
         <div class="col">
@@ -303,7 +303,7 @@
       <header class="slide-header">
         <div class="slide-kicker">Ground truth · annotation</div>
         <h2>Labeling Phases 1 <span class="amp">&amp;</span> 2</h2>
-        <p class="slide-lede">3 annotators (including a medical doctor) labeled 480 users by hand.</p>
+        <p class="slide-lede">3 annotators (one with an MD) labeled <strong>480 users</strong> by hand — <strong>300</strong> multi-annotator (A1 + one of A2/A3), then <strong>180 more</strong> by A1 alone to expand training data.</p>
       </header>
 
       <div class="two-col">
@@ -352,7 +352,7 @@
       <header class="slide-header">
         <div class="slide-kicker">Worked example · same user as next slide</div>
         <h2>One user’s search days — and the day of diagnosis</h2>
-        <p class="slide-lede">The real Table II user as a daily calendar — each dot is one query, colored by ontology category. <em>(Next slide shows the actual query text.)</em></p>
+        <p class="slide-lede">The paper's Table II <em>fictitious example</em> (a representative composite of many real PP users), as a daily calendar — each dot is one query, colored by ontology category. <em>(Next slide shows the query text.)</em></p>
       </header>
 
       <div class="timeline-example" id="exampleTimeline">
@@ -379,8 +379,8 @@
     <!-- =========================================================== -->
     <section class="slide" data-title="Real Example: Queries">
       <header class="slide-header">
-        <div class="slide-kicker">From the paper · Table II — a real PP-labeled user's log</div>
-        <h2>An actual user's queries around their diagnosis</h2>
+        <div class="slide-kicker">From the paper · Table II — fictitious example user, representative of real PP cases</div>
+        <h2>A PP-style user's queries around diagnosis</h2>
       </header>
 
       <div class="query-log-wrap">
@@ -1056,7 +1056,7 @@
               <span class="bar-val">88.5%</span>
             </div>
           </div>
-          <p class="result-extra">↳ at <strong>25 % recall</strong> (high-precision mode — only outputs most confident days): MART hits <strong>82.0 %</strong> on the <em>exact day</em> and <strong>99.0 %</strong> within 15 days.</p>
+          <p class="result-extra">↳ at <strong>25 % recall</strong> (high-precision mode — only outputs most confident days): MART hits <strong>72.8 %</strong> on the <em>exact day</em>, <strong>90.2 %</strong> within 7 days, and <strong>99.0 %</strong> within 15 days.</p>
         </div>
       </div>
 
@@ -1101,7 +1101,7 @@
               <span class="corr-value corr-value--low">r = 0.036</span>
             </div>
           </div>
-          <p class="muted small">Order-of-magnitude improvement over the unfiltered pool — the classifier really is picking out patients, not just heavy searchers.</p>
+          <p class="muted small">Order-of-magnitude improvement over the unfiltered pool — evidence the classifier <em>may indeed be</em> picking out searchers consistent with new diagnoses, not just heavy searchers.</p>
         </div>
 
         <div class="col">
