@@ -255,7 +255,7 @@
           <div class="funnel-num"><span class="funnel-big">billions</span></div>
           <div class="funnel-cap">
             <strong>Raw Bing logs</strong>
-            <p>Anonymized queries from millions of searchers, collected over 18 months via a browser add-on.</p>
+            <p>Anonymized U.S. English-locale queries from consenting browser add-on users, Feb 2012-July 2013.</p>
           </div>
         </div>
 
@@ -377,10 +377,10 @@
     <!-- =========================================================== -->
     <!-- SLIDE 7C — REAL EXAMPLE QUERY LOG (paper's Table II)         -->
     <!-- =========================================================== -->
-    <section class="slide" data-title="Real Example: Queries">
+    <section class="slide" data-title="Representative Queries">
       <header class="slide-header">
         <div class="slide-kicker">From the paper · Table II — fictitious example user, representative of real PP cases</div>
-        <h2>A PP-style user's queries around diagnosis</h2>
+        <h2>A fictitious PP-style query sequence</h2>
       </header>
 
       <div class="query-log-wrap">
@@ -504,7 +504,7 @@
       </div>
 
       <p class="figure-caption">
-        From a symptom &amp; biopsy phase, the user pivots <em>within 24 minutes</em> on Dec 12 — staging → type → grading → prognosis. Later that day, searches move into reconstruction. That sudden shift is exactly the signal the DDX classifier locks onto.
+        Dec 12 shows the DDX signal: staging → type → grading → prognosis, then reconstruction/treatment planning.
       </p>
     </section>
 
@@ -624,12 +624,12 @@
           <p>Ambiguous terms like <em>“mass”</em> count only when co-occurring with cancer / anatomy / healthcare terms in the same query.</p>
         </div>
         <div class="mini">
-          <strong>The EXPERT filter</strong>
-          <p>A category of professional terminology — a powerful <em>negative</em> feature flagging students &amp; clinicians.</p>
+          <strong>The EXPERT category</strong>
+          <p>Professional terminology used as a powerful <em>negative</em> feature for students, clinicians, and other non-patient searchers.</p>
         </div>
         <div class="mini">
           <strong>AGE &amp; GEOGRAPHIC</strong>
-          <p>Two special categories — <em>"oncologist in seattle"</em> or <em>"breast cancer at age 55"</em> add personal detail, signalling the user is <em>experiencing</em> the disease, not just curious.</p>
+          <p>Two special categories — <em>"oncologist in seattle"</em> or <em>"breast cancer at age 55"</em> add personal detail, making experiential intent more likely.</p>
         </div>
       </div>
     </section>
@@ -714,7 +714,7 @@
             <tr><td>type_count</td><td>2</td></tr>
             <tr><td>treatment_count</td><td>6</td></tr>
             <tr><td>oncology_ratio</td><td>0.90</td></tr>
-            <tr><td>has_first_person</td><td>1</td></tr>
+            <tr><td>has_personal_pronoun</td><td>1</td></tr>
             <tr><td>days_diag→treat</td><td>2</td></tr>
             <tr><td>has_expert_term</td><td>0</td></tr>
             <tr><td>last_10_days_flag</td><td>0</td></tr>
@@ -1057,7 +1057,7 @@
         </div>
 
         <div class="result-row fragment">
-          <div class="result-name">DDX · within 15-day window <span class="muted small">· 100% recall</span></div>
+          <div class="result-name">DDX · within 15 d of label <span class="muted small">· 100% recall</span></div>
           <div class="result-bars">
             <div class="bar-row">
               <span class="bar-label">Baseline</span>
@@ -1105,7 +1105,7 @@
 
           <div class="corr-block">
             <div class="corr-row">
-              <span class="corr-label">High-probability searchers</span>
+              <span class="corr-label">DX prob ≥ 0.5 <span class="muted small">(n=5,625)</span></span>
               <div class="corr-bar"><div class="corr-fill" style="--w:74%"></div></div>
               <span class="corr-value">r = 0.348</span>
             </div>
@@ -1269,7 +1269,7 @@
       <div class="two-col">
         <div class="col">
           <h3 class="col-title">Clinical reality check</h3>
-          <p>Real-world studies report a <strong>median 29 days</strong> from suspicious mammogram to diagnosis. The search-log average is slightly shorter because searchers may look up treatments <em>before</em> the procedure happens.</p>
+          <p>The order matches clinical care, but search pivots come earlier: workup→DDX averages <strong>20 d</strong> vs a <strong>29 d</strong> mammogram-to-diagnosis median; surgery and chemo searches also precede typical procedure timing.</p>
         </div>
         <div class="col">
           <h3 class="col-title">The disruption</h3>
@@ -1285,7 +1285,7 @@
       <header class="slide-header">
         <div class="slide-kicker">From the paper · Fig. 2 — population view</div>
         <h2>Aligned queries around the diagnosis day</h2>
-        <p class="slide-lede">Thousands of user timelines, all aligned so day 0 is the inferred DDX.</p>
+        <p class="slide-lede">High-confidence timelines aligned so day 0 is the inferred DDX; counts thin out far from the pivot days.</p>
       </header>
 
       <div class="figure-frame">
@@ -1293,7 +1293,7 @@
       </div>
 
       <p class="figure-caption">
-        A <strong>pivot point</strong> = the first day a user searches for terms from a clinical phase — screening (first mammography/ultrasound query before DDX), surgery (first surgery query after DDX), chemo (first chemo query after the surgery pivot). Thousands of users are aligned around each pivot, and the clinical sequence emerges in the average.
+        A <strong>pivot point</strong> = the first day a user searches for terms from a clinical phase — screening (first mammography/ultrasound query before DDX), surgery (first surgery query after DDX), chemo (first chemo query after the surgery pivot). The average reveals the clinical sequence, but not every user contributes every pivot or every day.
       </p>
     </section>
 
