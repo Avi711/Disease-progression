@@ -1944,3 +1944,110 @@ code, .mono { font-family: var(--font-mono); font-size: 0.95em; }
   }
   .fragment { opacity: 1 !important; transform: none !important; }
 }
+
+/* -------------------------------------------------------------------
+   Per-slide overflow corrections
+   ------------------------------------------------------------------- */
+.slide--example-days {
+  gap: 12px;
+}
+.slide--example-days .slide-header {
+  margin-bottom: 0;
+}
+.slide--example-days .slide-lede {
+  font-size: 16px;
+  line-height: 1.35;
+  margin-top: 8px;
+}
+.slide--example-days .timeline-example {
+  padding: 13px 18px;
+  gap: 7px;
+}
+.slide--example-days .te-day {
+  height: 42px;
+}
+.slide--example-days .timeline-legend {
+  margin-top: 0;
+}
+.slide--example-days .callout {
+  padding: 13px 18px;
+  font-size: 15.5px;
+  line-height: 1.4;
+}
+
+.slide--evaluation {
+  gap: 12px;
+}
+.slide--evaluation .slide-header {
+  margin-bottom: 0;
+}
+.slide--evaluation h2 {
+  font-size: 39px;
+}
+.slide--evaluation .slide-lede {
+  font-size: 16px;
+  margin-top: 8px;
+}
+.slide--evaluation .results-grid {
+  gap: 10px;
+  margin-top: 0;
+}
+.slide--evaluation .result-row {
+  padding: 13px 18px;
+}
+.slide--evaluation .result-name {
+  margin-bottom: 8px;
+}
+.slide--evaluation .result-bars {
+  gap: 6px;
+}
+.slide--evaluation .bar {
+  height: 18px;
+}
+.slide--evaluation .result-extra {
+  margin-top: 7px;
+  line-height: 1.32;
+}
+.slide--evaluation .two-mini {
+  gap: 12px;
+  margin-top: 4px;
+}
+.slide--evaluation .mini {
+  padding: 11px 16px;
+}
+.slide--evaluation .mini p {
+  font-size: 13.5px;
+  line-height: 1.38;
+}
+.slide--evaluation .footnote {
+  font-size: 13.5px;
+}
+
+.slide--hmm-intro {
+  gap: 12px;
+}
+.slide--hmm-intro .slide-header {
+  margin-bottom: 0;
+}
+.slide--hmm-intro h2 {
+  font-size: 39px;
+}
+.slide--hmm-intro .slide-lede {
+  font-size: 16.5px;
+  line-height: 1.38;
+  max-width: 930px;
+}
+.slide--hmm-intro .hmm-svg {
+  flex: 0 0 296px;
+  min-height: 0;
+  padding: 10px 14px;
+}
+.slide--hmm-intro .hmm-svg svg {
+  width: 100%;
+  height: 100%;
+}
+.slide--hmm-intro .callout {
+  padding: 11px 18px;
+  font-size: 15px;
+  line-height: 1.32;
+}
