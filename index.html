@@ -1,0 +1,1471 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Search &amp; Breast Cancer — Paper Presentation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- =================================================================
+       HOW TO EDIT THIS DECK
+       -----------------------------------------------------------------
+       • Each slide is one <section class="slide"> below.
+       • To delete a slide:      remove its entire <section>.
+       • To reorder:             cut & paste sections in any order.
+       • To duplicate:           copy the section.
+       • Elements with class "fragment" appear one-by-one on key press.
+       • Navigation: → / Space = next, ← = prev, F = fullscreen,
+                     O = overview, number + Enter = jump.
+       ================================================================= -->
+
+  <div class="deck" id="deck">
+   <div class="stage" id="stage">
+
+    <!-- =========================================================== -->
+    <!-- SLIDE 1 — TITLE                                              -->
+    <!-- =========================================================== -->
+    <section class="slide slide--title" data-title="Title">
+      <div class="title-card">
+        <div class="title-eyebrow">ACM Transactions on the Web · 2016</div>
+        <h1 class="title-main">
+          Search <span class="amp">&amp;</span> Breast Cancer
+        </h1>
+        <h2 class="title-sub">
+          On Episodic Shifts of Attention<br/>over Life Histories of an Illness
+        </h2>
+        <div class="title-authors">
+          Michael J. Paul &nbsp;·&nbsp; Ryen W. White &nbsp;·&nbsp; Eric Horvitz
+        </div>
+        <div class="title-divider"></div>
+        <div class="title-goal">
+          <span class="label">Goal of this talk</span>
+          Understand how anonymized search logs &amp; machine learning can
+          detect and track the evolving informational needs of patients
+          newly diagnosed with breast cancer.
+        </div>
+      </div>
+      <div class="title-decoration" aria-hidden="true">
+        <svg viewBox="0 0 600 600" preserveAspectRatio="xMidYMid meet">
+          <defs>
+            <radialGradient id="titleGlow" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#D5614A" stop-opacity="0.18"/>
+              <stop offset="100%" stop-color="#D5614A" stop-opacity="0"/>
+            </radialGradient>
+          </defs>
+          <circle cx="300" cy="300" r="280" fill="url(#titleGlow)"/>
+          <g stroke="#D5614A" stroke-width="1" fill="none" opacity="0.35">
+            <circle cx="300" cy="300" r="120"/>
+            <circle cx="300" cy="300" r="170"/>
+            <circle cx="300" cy="300" r="220"/>
+          </g>
+        </svg>
+      </div>
+    </section>
+
+    <!-- =========================================================== -->
+    <!-- SLIDE 2 — MEDICAL BACKGROUND                                 -->
+    <!-- =========================================================== -->
+    <section class="slide" data-title="Medical Background">
+      <header class="slide-header">
+        <div class="slide-kicker">Context for CS readers</div>
+        <h2>Medical Background</h2>
+        <p class="slide-lede">Three concepts you need to read the search data correctly.</p>
+      </header>
+
+      <div class="card-grid card-grid--3">
+        <article class="card fragment">
+          <div class="card-num">1</div>
+          <h3>Tumor <span class="amp">&amp;</span> Biopsy</h3>
+          <p>A <em>tumor</em> is an abnormal mass. When screening flags one, a doctor orders a <em>biopsy</em> — a tissue sample — to determine if it is cancerous.</p>
+        </article>
+
+        <article class="card fragment">
+          <div class="card-num">2</div>
+          <h3>Diagnosis <span class="amp">&amp;</span> Staging</h3>
+          <p>Pathology confirms the type, grade, and <em>stage</em>. Stages run from <strong>0</strong> (non-invasive) to <strong>IV</strong> (metastasized to other organs).</p>
+        </article>
+
+        <article class="card fragment">
+          <div class="card-num">3</div>
+          <h3>Treatment Pipeline</h3>
+          <p>Care follows a typical order: <em>surgery</em> (lumpectomy / mastectomy) → <em>chemotherapy</em> and / or <em>radiation</em>.</p>
+        </article>
+      </div>
+
+      <div class="callout fragment">
+        Why this matters for CS: each of these events leaves a distinctive
+        <em>search fingerprint</em> — and they appear in a predictable order.
+      </div>
+    </section>
+
+    <!-- =========================================================== -->
+    <!-- SLIDE 3 — INTRO & CORE PROBLEM                               -->
+    <!-- =========================================================== -->
+    <section class="slide" data-title="The Core Problem">
+      <header class="slide-header">
+        <div class="slide-kicker">Introduction</div>
+        <h2>The Core Algorithmic Problem</h2>
+      </header>
+
+      <div class="two-col">
+        <div class="col">
+          <h3 class="col-title">The reality of diagnosis</h3>
+          <p>A cancer diagnosis is a highly disruptive event — patients are immersed in new terminology, financial concerns, and time-sensitive decisions.</p>
+
+          <h3 class="col-title">The algorithmic challenge</h3>
+          <p>Search logs are extremely noisy. How do we tell apart…</p>
+          <ul class="quiet-list">
+            <li>a newly diagnosed patient</li>
+            <li>a medical student studying the disease</li>
+            <li>someone who has had the illness for years</li>
+          </ul>
+        </div>
+
+        <div class="col">
+          <h3 class="col-title">The CS goals</h3>
+          <ol class="goal-list">
+            <li class="fragment">
+              <span class="goal-tag">DX</span>
+              <div>
+                <strong>Searcher classification</strong><br/>
+                <span class="muted">A probabilistic classifier that identifies users actively experiencing a new diagnosis.</span>
+              </div>
+            </li>
+            <li class="fragment">
+              <span class="goal-tag">DDX</span>
+              <div>
+                <strong>Timeline classification</strong><br/>
+                <span class="muted">A model that estimates the day the diagnosis was learned.</span>
+              </div>
+            </li>
+            <li class="fragment">
+              <span class="goal-tag">HMM</span>
+              <div>
+                <strong>Episode discovery</strong><br/>
+                <span class="muted">Align inferred timelines to find standard patterns of information-seeking across the illness.</span>
+              </div>
+            </li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================== -->
+    <!-- SLIDE 4 — RELATED WORK                                       -->
+    <!-- =========================================================== -->
+    <section class="slide" data-title="Related Work">
+      <header class="slide-header">
+        <div class="slide-kicker">Scientific context</div>
+        <h2>Related Work</h2>
+      </header>
+
+      <div class="related-flow">
+        <div class="related-box related-box--prior fragment">
+          <div class="related-label">Prior work</div>
+          <h3>Syndromic surveillance</h3>
+          <p>Search logs used to track public-health events at a macro level — flu outbreaks, dengue, unreported drug side effects.</p>
+          <div class="related-scope">Scope: <strong>population</strong></div>
+        </div>
+
+        <div class="related-arrow" aria-hidden="true">
+          <svg viewBox="0 0 80 40">
+            <path d="M5 20 H65" stroke="currentColor" stroke-width="2" fill="none"/>
+            <path d="M55 12 L70 20 L55 28" stroke="currentColor" stroke-width="2" fill="none"/>
+          </svg>
+          <div class="related-arrow-label">novelty</div>
+        </div>
+
+        <div class="related-box related-box--this fragment">
+          <div class="related-label">This paper</div>
+          <h3>Episodic life history</h3>
+          <p>Tracks the long-term, multi-session, episodic history of a <em>single user</em> grappling with a disruptive life event.</p>
+          <div class="related-scope">Scope: <strong>individual timeline</strong></div>
+        </div>
+      </div>
+
+      <div class="callout fragment">
+        The shift: from <em>“how many people are searching about flu this week”</em>
+        to <em>“where in their personal illness journey is this user, today?”</em>
+      </div>
+    </section>
+
+    <!-- =========================================================== -->
+    <!-- SLIDE 5 — PRELIMINARY SURVEY                                 -->
+    <!-- =========================================================== -->
+    <section class="slide" data-title="Preliminary Survey">
+      <header class="slide-header">
+        <div class="slide-kicker">Step 0 — the “why”</div>
+        <h2>What does a real patient actually search for?</h2>
+        <p class="slide-lede">Before any ML, the authors asked 867 Microsoft employees.</p>
+      </header>
+
+      <div class="two-col">
+        <div class="col">
+          <div class="stat-block">
+            <div class="stat-num">867</div>
+            <div class="stat-cap">U.S. respondents surveyed</div>
+          </div>
+          <div class="stat-block stat-block--accent">
+            <div class="stat-num">2.62<span class="stat-unit">×</span></div>
+            <div class="stat-cap">Diagnosed respondents more likely to search for <em>explanations of pathology reports</em></div>
+          </div>
+          <p class="muted small">Also significantly more likely to search for staging / grading, healthcare providers, and treatment side effects.</p>
+        </div>
+
+        <div class="col">
+          <h3 class="col-title">Why a survey first?</h3>
+          <p>It told the researchers <em>which terms</em> deserve to be treated as <strong>experiential</strong> — strong positive signals in the feature space.</p>
+
+          <div class="impact-card fragment">
+            <div class="impact-arrow">→</div>
+            <div>
+              <strong>Impact on the model</strong>
+              <p>The survey directly seeded the 7 <em>experiential categories</em> later used as features in the MART classifier:</p>
+              <div class="exp-cats">
+                <span class="exp-cat">Cosmetic</span>
+                <span class="exp-cat">Description</span>
+                <span class="exp-cat">Diagnosis → Diagnostics / Screening</span>
+                <span class="exp-cat">Involvement → Lymph nodes / Metastasis</span>
+                <span class="exp-cat">Pathology</span>
+                <span class="exp-cat">Treatment → Chemo / Radiation / Drugs</span>
+                <span class="exp-cat">Statistics → Prognosis</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================== -->
+    <!-- SLIDE 6 — DATA COLLECTION                                    -->
+    <!-- =========================================================== -->
+    <section class="slide" data-title="Data Collection">
+      <header class="slide-header">
+        <div class="slide-kicker">Dataset</div>
+        <h2>Data Collection <span class="amp">&amp;</span> Scope</h2>
+      </header>
+
+      <div class="funnel">
+        <div class="funnel-step funnel-step--1">
+          <div class="funnel-num"><span class="funnel-big">billions</span></div>
+          <div class="funnel-cap">
+            <strong>Raw Bing logs</strong>
+            <p>Anonymized queries from millions of searchers, collected over 18 months via a browser add-on.</p>
+          </div>
+        </div>
+
+        <div class="funnel-arrow">
+          <div class="funnel-arrow-chip">
+            <span>Filter</span>
+            <small>queried "breast cancer" in <strong>≥ 3 sessions</strong> spanning <strong>≥ 20 days</strong></small>
+          </div>
+        </div>
+
+        <div class="funnel-step funnel-step--2">
+          <div class="funnel-num">138,306</div>
+          <div class="funnel-cap">
+            <strong>Candidate users</strong>
+            <p>Searchers with enough breast-cancer-related activity to analyze — input pool for the DX classifier.</p>
+          </div>
+        </div>
+
+        <div class="funnel-arrow">
+          <div class="funnel-arrow-chip">
+            <span>DX classifier</span>
+            <small>trained on <strong>480 hand-labeled users</strong> · applied to all 138,306</small>
+          </div>
+        </div>
+
+        <div class="funnel-step funnel-step--3">
+          <div class="funnel-num">~1,700</div>
+          <div class="funnel-cap">
+            <strong>High-confidence patients <span class="muted">· ~90% precision</span></strong>
+            <p>The cohort used for the population timeline &amp; stage analyses later in the paper.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout">
+        <strong>Secondary source — comScore.</strong>
+        A market-research firm that tracks a consenting panel of US users with verified demographics. Used to check that the algorithm's high-probability patients skew female and older — matching real breast cancer incidence.
+      </div>
+    </section>
+
+    <!-- =========================================================== -->
+    <!-- SLIDE 7 — GROUND TRUTH (PHASE 1 & 2)                          -->
+    <!-- =========================================================== -->
+    <section class="slide" data-title="Ground Truth (1 & 2)">
+      <header class="slide-header">
+        <div class="slide-kicker">Ground truth · annotation</div>
+        <h2>Labeling Phases 1 <span class="amp">&amp;</span> 2</h2>
+        <p class="slide-lede">3 annotators (including a medical doctor) labeled 480 users by hand.</p>
+      </header>
+
+      <div class="two-col">
+        <div class="col">
+          <h3 class="col-title"><span class="phase-tag">Phase 1</span> Focus of attention</h3>
+          <div class="label-row">
+            <span class="lbl lbl--N">N</span>
+            <div>
+              <strong>Negative</strong>
+              <p>History lacks a sustained focus on breast cancer (searches many disparate diseases).</p>
+            </div>
+          </div>
+          <div class="label-row">
+            <span class="lbl lbl--P">P</span>
+            <div>
+              <strong>Positive</strong>
+              <p>Demonstrates a sustained focus on breast cancer.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col">
+          <h3 class="col-title"><span class="phase-tag">Phase 2</span> Timeline of the shift</h3>
+          <div class="label-row">
+            <span class="lbl lbl--PP">PP</span>
+            <div>
+              <strong>Positive → Positive</strong>
+              <p>Focus shifts <em>during</em> the log window — consistent with a <em>new</em> diagnosis. ✅ what we want.</p>
+            </div>
+          </div>
+          <div class="label-row">
+            <span class="lbl lbl--PN">PN</span>
+            <div>
+              <strong>Positive throughout</strong>
+              <p>Focus was already strong — diagnosis happened before the window. Treated as a <em>negative</em> instance.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================== -->
+    <!-- SLIDE 7B — EXAMPLE: SEARCH DAYS AROUND DIAGNOSIS              -->
+    <!-- =========================================================== -->
+    <section class="slide" data-title="Example: Search Days">
+      <header class="slide-header">
+        <div class="slide-kicker">Worked example · same user as next slide</div>
+        <h2>One user’s search days — and the day of diagnosis</h2>
+        <p class="slide-lede">The real Table II user as a daily calendar — each dot is one query, colored by ontology category. <em>(Next slide shows the actual query text.)</em></p>
+      </header>
+
+      <div class="timeline-example" id="exampleTimeline">
+        <!-- Filled by JS so the example is easy to edit data-only -->
+      </div>
+
+      <div class="timeline-legend">
+        <span class="leg leg--symptom"><i></i> symptoms</span>
+        <span class="leg leg--diag"><i></i> diagnostics / biopsy</span>
+        <span class="leg leg--desc"><i></i> staging / type</span>
+        <span class="leg leg--prognosis"><i></i> prognosis</span>
+        <span class="leg leg--treat"><i></i> treatment</span>
+        <span class="leg leg--prof"><i></i> provider</span>
+        <span class="leg leg--ddx"><i></i> inferred DDX day</span>
+      </div>
+
+      <div class="callout">
+        Notice the <em>sharp transition</em>: 4 mostly-silent weeks, then 7 queries in one day pivoting from staging → type → prognosis → treatment. That spike is exactly the signal the DDX classifier locks onto.
+      </div>
+    </section>
+
+    <!-- =========================================================== -->
+    <!-- SLIDE 7C — REAL EXAMPLE QUERY LOG (paper's Table II)         -->
+    <!-- =========================================================== -->
+    <section class="slide" data-title="Real Example: Queries">
+      <header class="slide-header">
+        <div class="slide-kicker">From the paper · Table II — a real PP-labeled user's log</div>
+        <h2>An actual user's queries around their diagnosis</h2>
+      </header>
+
+      <div class="query-log-wrap">
+        <table class="query-log">
+          <thead>
+            <tr>
+              <th>Date · time</th>
+              <th>Query</th>
+              <th>Category</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="ql-phase">
+              <td colspan="3">▸ Pre-diagnosis · symptom &amp; biopsy searches</td>
+            </tr>
+            <tr>
+              <td>Nov 13 · 7:40pm</td>
+              <td>feels like lump in breast</td>
+              <td><span class="ql-cat ql-cat--symptom">symptom</span></td>
+            </tr>
+            <tr>
+              <td>Dec 1 · 11:21am</td>
+              <td>pain after biopsy</td>
+              <td><span class="ql-cat ql-cat--symptom">symptom</span></td>
+            </tr>
+            <tr>
+              <td>Dec 1 · 11:31am</td>
+              <td>what happens after breast biopsy</td>
+              <td><span class="ql-cat ql-cat--diag">diagnostics</span></td>
+            </tr>
+            <tr>
+              <td>Dec 9 · 6:33pm</td>
+              <td>how often are breast lumps cancer</td>
+              <td><span class="ql-cat ql-cat--diag">diagnostics</span></td>
+            </tr>
+            <tr>
+              <td>Dec 9 · 6:45pm</td>
+              <td>does cancer make you thirsty</td>
+              <td><span class="ql-cat ql-cat--symptom">symptom</span></td>
+            </tr>
+            <tr>
+              <td>Dec 9 · 6:49pm</td>
+              <td>how long does it take for biopsy results</td>
+              <td><span class="ql-cat ql-cat--diag">diagnostics</span></td>
+            </tr>
+
+            <tr class="ql-phase ql-phase--ddx">
+              <td colspan="3">▸ Dec 12 — the diagnosis day (DDX) · sudden staging &amp; type queries</td>
+            </tr>
+            <tr class="ql-row--ddx">
+              <td>Dec 12 · 12:08pm</td>
+              <td>stage 2a breast cancer</td>
+              <td><span class="ql-cat ql-cat--desc">staging</span></td>
+            </tr>
+            <tr class="ql-row--ddx">
+              <td>Dec 12 · 12:15pm</td>
+              <td>invasive ductal carcinoma</td>
+              <td><span class="ql-cat ql-cat--desc">type</span></td>
+            </tr>
+            <tr class="ql-row--ddx">
+              <td>Dec 12 · 12:17pm</td>
+              <td>poorly differentiated idc breast cancer</td>
+              <td><span class="ql-cat ql-cat--desc">grading</span></td>
+            </tr>
+            <tr class="ql-row--ddx">
+              <td>Dec 12 · 12:29pm</td>
+              <td>breast cancer survival rate</td>
+              <td><span class="ql-cat ql-cat--prognosis">prognosis</span></td>
+            </tr>
+            <tr class="ql-row--ddx">
+              <td>Dec 12 · 12:32pm</td>
+              <td>stage 2 breast cancer survival rate</td>
+              <td><span class="ql-cat ql-cat--prognosis">prognosis</span></td>
+            </tr>
+            <tr class="ql-row--ddx">
+              <td>Dec 12 · 7:44pm</td>
+              <td>breast reconstruction surgery</td>
+              <td><span class="ql-cat ql-cat--treat">treatment</span></td>
+            </tr>
+            <tr class="ql-row--ddx">
+              <td>Dec 12 · 7:46pm</td>
+              <td>breast reconstruction after cancer</td>
+              <td><span class="ql-cat ql-cat--treat">treatment</span></td>
+            </tr>
+
+            <tr class="ql-phase">
+              <td colspan="3">▸ Post-diagnosis · planning treatment</td>
+            </tr>
+            <tr>
+              <td>Dec 13 · 8:05am</td>
+              <td>breast cancer treatment</td>
+              <td><span class="ql-cat ql-cat--treat">treatment</span></td>
+            </tr>
+            <tr>
+              <td>Dec 13 · 8:16am</td>
+              <td>recovering from breast cancer</td>
+              <td><span class="ql-cat ql-cat--treat">treatment</span></td>
+            </tr>
+            <tr>
+              <td>Dec 15 · 9:20am</td>
+              <td>breast cancer surgeon</td>
+              <td><span class="ql-cat ql-cat--prof">provider</span></td>
+            </tr>
+            <tr>
+              <td>Dec 15 · 10:22am</td>
+              <td>full mastectomy</td>
+              <td><span class="ql-cat ql-cat--treat">treatment</span></td>
+            </tr>
+            <tr>
+              <td>Dec 15 · 10:23am</td>
+              <td>mastectomy pros and cons</td>
+              <td><span class="ql-cat ql-cat--treat">treatment</span></td>
+            </tr>
+            <tr>
+              <td>Dec 15 · 10:29am</td>
+              <td>do you need chemo after mastectomy</td>
+              <td><span class="ql-cat ql-cat--treat">treatment</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="figure-caption">
+        From a symptom &amp; biopsy phase, the user pivots <em>within 24 minutes</em> on Dec 12 — staging → type → grading → prognosis → reconstruction. That sudden shift is exactly the signal the DDX classifier locks onto.
+      </p>
+    </section>
+
+    <!-- =========================================================== -->
+    <!-- SLIDE 8 — GROUND TRUTH PHASE 3 & CONFLICTS                    -->
+    <!-- =========================================================== -->
+    <section class="slide" data-title="Ground Truth (3)">
+      <header class="slide-header">
+        <div class="slide-kicker">Ground truth · annotation</div>
+        <h2>Phase 3 <span class="amp">&amp;</span> Conflict Resolution</h2>
+      </header>
+
+      <div class="two-col">
+        <div class="col">
+          <h3 class="col-title"><span class="phase-tag">Phase 3</span> DDX identification</h3>
+          <p>For <strong>PP</strong> users, the day of diagnosis is labeled at the sudden appearance of specific pathology / staging queries <em>following</em> biopsy searches.</p>
+
+          <div class="agreement">
+            <div>
+              <div class="agree-num">69<span class="stat-unit">%</span></div>
+              <div class="agree-cap">Annotators 1 &amp; 2<br/><span class="muted">κ = 0.51</span></div>
+            </div>
+            <div>
+              <div class="agree-num">77<span class="stat-unit">%</span></div>
+              <div class="agree-cap">Annotators 1 &amp; 3<br/><span class="muted">κ = 0.61</span></div>
+            </div>
+          </div>
+          <p class="muted small">→ fair-to-good inter-annotator agreement across pairs.</p>
+        </div>
+
+        <div class="col">
+          <h3 class="col-title">Conflict resolution</h3>
+
+          <div class="rule-card fragment">
+            <div class="rule-tag">Classification</div>
+            <p>Majority vote. If still ambiguous → assign the <strong>most negative</strong> label so ambiguous false positives don’t contaminate training.</p>
+          </div>
+
+          <div class="rule-card fragment">
+            <div class="rule-tag">Timeline (DDX)</div>
+            <p>If annotators disagree by ≤ 7 days → default to the <strong>later</strong> day, ensuring the label falls <em>after</em> pathology confirmation.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================== -->
+    <!-- SLIDE 9 — FEATURE ENGINEERING: ONTOLOGY                       -->
+    <!-- =========================================================== -->
+    <section class="slide" data-title="Ontology">
+      <header class="slide-header">
+        <div class="slide-kicker">Feature engineering · part 1</div>
+        <h2>A 3-level medical ontology</h2>
+        <div class="ont-stat-strip">
+          <span><strong>1,963</strong> terms</span>
+          <span><strong>19</strong> top-level</span>
+          <span><strong>47</strong> mid-level</span>
+          <span><strong>127</strong> bottom-level</span>
+        </div>
+      </header>
+
+      <div class="ont-rows">
+        <div class="ont-rows-head">
+          <div>Level 1 · broad domain</div>
+          <div></div>
+          <div>Level 2 · sub-domain</div>
+          <div></div>
+          <div>Level 3 · exact topic</div>
+          <div></div>
+          <div>Actual matched query terms</div>
+        </div>
+
+        <div class="ont-row">
+          <div class="ont-cell ont-cell--l1">Diagnosis</div>
+          <div class="ont-row-arrow">→</div>
+          <div class="ont-cell ont-cell--l2">Diagnostics</div>
+          <div class="ont-row-arrow">→</div>
+          <div class="ont-cell ont-cell--l3">Biopsy</div>
+          <div class="ont-row-arrow">→</div>
+          <div class="ont-cell ont-cell--terms">"biopsy" · "biopsies"</div>
+        </div>
+
+        <div class="ont-row">
+          <div class="ont-cell ont-cell--l1">Description</div>
+          <div class="ont-row-arrow">→</div>
+          <div class="ont-cell ont-cell--l2">Type</div>
+          <div class="ont-row-arrow">→</div>
+          <div class="ont-cell ont-cell--l3">Cancer Type</div>
+          <div class="ont-row-arrow">→</div>
+          <div class="ont-cell ont-cell--terms">"DCIS" · "IDC" · "lobular" · "ductal"</div>
+        </div>
+
+        <div class="ont-row">
+          <div class="ont-cell ont-cell--l1">Treatment</div>
+          <div class="ont-row-arrow">→</div>
+          <div class="ont-cell ont-cell--l2">Chemotherapy</div>
+          <div class="ont-row-arrow">→</div>
+          <div class="ont-cell ont-cell--l3">Side Effects</div>
+          <div class="ont-row-arrow">→</div>
+          <div class="ont-cell ont-cell--terms">"hair loss" · "hair fall" · "losing my hair"</div>
+        </div>
+
+        <div class="ont-row">
+          <div class="ont-cell ont-cell--l1">Professional</div>
+          <div class="ont-row-arrow">→</div>
+          <div class="ont-cell ont-cell--l2">Healthcare</div>
+          <div class="ont-row-arrow">→</div>
+          <div class="ont-cell ont-cell--l3">Provider</div>
+          <div class="ont-row-arrow">→</div>
+          <div class="ont-cell ont-cell--terms">"clinic" · "hospital" · "cancer center"</div>
+        </div>
+      </div>
+
+      <div class="two-mini">
+        <div class="mini">
+          <strong>Contextual constraint</strong>
+          <p>Ambiguous terms like <em>“mass”</em> count only when co-occurring with cancer / anatomy / healthcare terms in the same query.</p>
+        </div>
+        <div class="mini">
+          <strong>The EXPERT filter</strong>
+          <p>A category of professional terminology — a powerful <em>negative</em> feature flagging students &amp; clinicians.</p>
+        </div>
+        <div class="mini">
+          <strong>AGE &amp; GEOGRAPHIC</strong>
+          <p>Two special categories — <em>"oncologist in seattle"</em> or <em>"breast cancer at age 55"</em> add personal detail, signalling the user is <em>experiencing</em> the disease, not just curious.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================== -->
+    <!-- SLIDE 10 — FEATURE ENGINEERING: BEHAVIOR                      -->
+    <!-- =========================================================== -->
+    <section class="slide" data-title="Behavioral Features">
+      <header class="slide-header">
+        <div class="slide-kicker">Feature engineering · part 2</div>
+        <h2>Beyond bag-of-words — user behavior</h2>
+      </header>
+
+      <div class="card-grid card-grid--4">
+        <article class="card card--feat fragment">
+          <div class="feat-icon">💬</div>
+          <h3>Query-level</h3>
+          <p>First-person pronouns (<em>“I”, “my”</em>), experiential phrases (<em>“I was diagnosed”</em> + cancer string). Tracks conjunctions of up to 3 features.</p>
+        </article>
+
+        <article class="card card--feat fragment">
+          <div class="feat-icon">📊</div>
+          <h3>Volume patterns</h3>
+          <p>Ratio of oncology queries vs total volume. High-frequency searches for many different symptoms → <em>negative</em> signal (exploratory).</p>
+        </article>
+
+        <article class="card card--feat fragment">
+          <div class="feat-icon">⏱</div>
+          <h3>Temporal</h3>
+          <p>Chronological sequencing — e.g. number of days between first <em>Diagnostics</em> query and first <em>Drugs</em> query.</p>
+        </article>
+
+        <article class="card card--feat fragment">
+          <div class="feat-icon">🚧</div>
+          <h3>Boundary indicators</h3>
+          <p>Binary flag if an event falls in the first or last <strong>10 days</strong> of the log window — where timeline data is inherently noisy.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- =========================================================== -->
+    <!-- SLIDE 10B — QUERIES → FEATURE VECTOR (worked example)        -->
+    <!-- =========================================================== -->
+    <section class="slide" data-title="Queries → Vector">
+      <header class="slide-header">
+        <div class="slide-kicker">Putting it together</div>
+        <h2>From queries to feature vector</h2>
+        <p class="slide-lede">What MART actually sees for one user — every history collapses into a single row of numbers.</p>
+      </header>
+
+      <div class="qv-flow">
+        <div class="qv-col qv-col--queries">
+          <div class="qv-col-tag">Raw queries (this user, ~20 in total)</div>
+          <ul class="qv-queries">
+            <li>"feels like lump in breast"</li>
+            <li>"pain after biopsy"</li>
+            <li>"how long for biopsy results"</li>
+            <li>"stage 2a breast cancer"</li>
+            <li>"invasive ductal carcinoma"</li>
+            <li>"breast cancer survival rate"</li>
+            <li>"breast reconstruction surgery"</li>
+            <li>"full mastectomy"</li>
+            <li class="qv-more">…12 more</li>
+          </ul>
+        </div>
+
+        <div class="qv-arrow">
+          <div class="qv-arrow-tag">aggregate over user history</div>
+          <svg class="qv-arrow-svg" viewBox="0 0 80 24">
+            <path d="M2 12 H66" stroke="currentColor" stroke-width="2" fill="none"/>
+            <path d="M58 4 L72 12 L58 20" stroke="currentColor" stroke-width="2" fill="none"/>
+          </svg>
+          <div class="qv-arrow-sub">match against ontology · count · derive ratios</div>
+        </div>
+
+        <div class="qv-col qv-col--vector">
+          <div class="qv-col-tag">Feature vector — input to MART</div>
+          <table class="qv-vector">
+            <tr><td>symptoms_count</td><td>3</td></tr>
+            <tr><td>biopsy_count</td><td>4</td></tr>
+            <tr><td>staging_count</td><td>2</td></tr>
+            <tr><td>type_count</td><td>2</td></tr>
+            <tr><td>treatment_count</td><td>6</td></tr>
+            <tr><td>oncology_ratio</td><td>0.90</td></tr>
+            <tr><td>has_first_person</td><td>1</td></tr>
+            <tr><td>days_diag→treat</td><td>2</td></tr>
+            <tr><td>has_expert_term</td><td>0</td></tr>
+            <tr><td>last_10_days_flag</td><td>0</td></tr>
+            <tr class="qv-more"><td colspan="2">… ~200 dims total</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="callout">
+        Every user collapses to <strong>one row</strong> of ~200 numbers — 127 ontology-category counts &amp; ratios + behavioral features (volume, temporal, boundary). MART then learns which combinations of these numbers predict <strong>P(user = PP)</strong>.
+      </div>
+    </section>
+
+    <!-- =========================================================== -->
+    <!-- SLIDE 11 — MART CLASSIFIERS                                   -->
+    <!-- =========================================================== -->
+    <section class="slide" data-title="MART">
+      <header class="slide-header">
+        <div class="slide-kicker">The model</div>
+        <h2>Core algorithm — MART</h2>
+        <p class="slide-lede">Multiple Additive Regression Trees — gradient-boosted trees.</p>
+      </header>
+
+      <div class="two-col">
+        <div class="col">
+          <h3 class="col-title">How it works</h3>
+          <p class="mart-intuition">
+            A sequence of <strong>small decision trees</strong> — each new tree learns to <em>predict what the previous trees got wrong</em>. Sum their outputs and you get one strong predictor from many weak ones.
+          </p>
+
+          <h3 class="col-title">Why use it here</h3>
+          <ul class="checklist">
+            <li>Interpretability — feature importance is inspectable</li>
+            <li>Robust against <em>noisy labels</em> (which we have!)</li>
+            <li>Robust against <em>missing values</em></li>
+            <li>Strong out-of-the-box performance on tabular features</li>
+          </ul>
+        </div>
+
+        <div class="col">
+          <h3 class="col-title">The DX model — two classifiers joined</h3>
+          <div class="dx-diagram">
+            <div class="dx-box dx-box--c1 fragment">
+              <div class="dx-name">Classifier&nbsp;A</div>
+              <div class="dx-task">N&nbsp;vs.&nbsp;P</div>
+            </div>
+            <div class="dx-times">×</div>
+            <div class="dx-box dx-box--c2 fragment">
+              <div class="dx-name">Classifier&nbsp;B</div>
+              <div class="dx-task">PN&nbsp;vs.&nbsp;PP</div>
+            </div>
+            <div class="dx-eq">=</div>
+            <div class="dx-box dx-box--out fragment">
+              <div class="dx-name">DX score</div>
+              <div class="dx-task">P(user is&nbsp;PP)</div>
+            </div>
+          </div>
+          <p class="muted small">The final prediction is the <em>joint probability</em> — the product of the two.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================== -->
+    <!-- SLIDE 12 — DDX COARSE-TO-FINE                                 -->
+    <!-- =========================================================== -->
+    <section class="slide" data-title="DDX Timeline Model">
+      <header class="slide-header">
+        <div class="slide-kicker">The model · timeline</div>
+        <h2>DDX — coarse-to-fine day prediction</h2>
+        <p class="slide-lede">Three classifiers, multiplied, to pinpoint a single day in months of noise.</p>
+      </header>
+
+      <div class="ddx-grid">
+        <div class="ddx-card fragment">
+          <div class="ddx-step">Step 1</div>
+          <h3>Window classifier</h3>
+          <div class="ddx-visual ddx-visual--window">
+            <svg viewBox="0 0 200 40">
+              <rect x="0" y="18" width="200" height="4" fill="#E5DFD3"/>
+              <rect x="70" y="10" width="60" height="20" fill="#D5614A" opacity="0.25"/>
+              <rect x="70" y="10" width="60" height="20" fill="none" stroke="#D5614A" stroke-width="2"/>
+            </svg>
+          </div>
+          <p>Coarse: predict a <strong>15-day window</strong> around the diagnosis.</p>
+        </div>
+
+        <div class="ddx-mul">×</div>
+
+        <div class="ddx-card fragment">
+          <div class="ddx-step">Step 2</div>
+          <h3>Day classifier</h3>
+          <div class="ddx-visual ddx-visual--day">
+            <svg viewBox="0 0 200 40">
+              <rect x="70" y="18" width="60" height="4" fill="#E5DFD3"/>
+              <line x1="100" y1="6" x2="100" y2="34" stroke="#D5614A" stroke-width="3"/>
+            </svg>
+          </div>
+          <p>Fine: predict the <strong>exact day</strong>, strictly inside that window.</p>
+        </div>
+
+        <div class="ddx-mul">×</div>
+
+        <div class="ddx-card fragment">
+          <div class="ddx-step">Step 3</div>
+          <h3>State transition</h3>
+          <div class="ddx-visual ddx-visual--state">
+            <svg viewBox="0 0 200 40">
+              <rect x="0" y="18" width="200" height="4" fill="#E5DFD3"/>
+              <rect x="0" y="14" width="100" height="12" fill="#4A6FA5" opacity="0.25"/>
+              <rect x="100" y="14" width="100" height="12" fill="#D5614A" opacity="0.35"/>
+              <text x="50" y="10" font-size="7" fill="#4A6FA5" text-anchor="middle">0 (before)</text>
+              <text x="150" y="10" font-size="7" fill="#D5614A" text-anchor="middle">1 (after)</text>
+            </svg>
+          </div>
+          <p>For any day, predict whether the user <strong>has been diagnosed</strong> yet.</p>
+        </div>
+      </div>
+
+      <div class="ddx-formula fragment">
+        <span class="muted">Joint:</span>
+        <code>P(day&nbsp;=&nbsp;d) = P<sub>window</sub>(d) · P<sub>day</sub>(d) · P<sub>state</sub>(d)</code>
+      </div>
+
+      <div class="callout fragment">
+        Also uses <em>before-and-after features</em> — the ratio of query
+        activity before vs after each candidate day.
+      </div>
+    </section>
+
+    <!-- =========================================================== -->
+    <!-- SLIDE 12C — THE ACTUAL MATH (for the curious)                 -->
+    <!-- =========================================================== -->
+    <section class="slide" data-title="DDX — Full Math">
+      <header class="slide-header">
+        <div class="slide-kicker">For the curious · the paper's actual formula</div>
+        <h2>DDX — the full probability function</h2>
+      </header>
+
+      <div class="math-grid">
+        <div class="math-legend">
+          <div class="math-legend-tag">The three classifiers</div>
+          <div class="math-row">
+            <code class="math-sym math-sym--ad">θ<sub>AD</sub></code>
+            <div>
+              <strong>Around Diagnosis</strong>
+              <p>For day <em>d</em>: probability <em>d</em> falls inside a 15-day window around the diagnosis.</p>
+            </div>
+          </div>
+          <div class="math-row">
+            <code class="math-sym math-sym--ww">θ<sub>WW</sub></code>
+            <div>
+              <strong>Within Window</strong>
+              <p>Conditional on <em>d</em> being in the window: probability <em>d</em> is the exact diagnosis day.</p>
+            </div>
+          </div>
+          <div class="math-row">
+            <code class="math-sym math-sym--hb">θ<sub>HB</sub></code>
+            <div>
+              <strong>Has Been diagnosed</strong>
+              <p>For any day, predict label <strong>0</strong> (not yet) vs <strong>1</strong> (already) — a step function.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="math-eq">
+          <div class="math-eq-tag">Joint probability — Equation 2 of the paper</div>
+          <div class="math-formula">
+            P(d) <span class="math-prop">∝</span> P(d ∈ window | <code class="math-sym--ad">θ<sub>AD</sub></code>)<br/>
+            <span class="math-indent">· P(d = 1 | d ∈ window, <code class="math-sym--ww">θ<sub>WW</sub></code>)</span><br/>
+            <span class="math-indent">· P(d−1 = 0 | <code class="math-sym--hb">θ<sub>HB</sub></code>)</span><br/>
+            <span class="math-indent">· P(d+1 = 1 | <code class="math-sym--hb">θ<sub>HB</sub></code>)</span>
+          </div>
+          <div class="math-formula math-formula--sub">
+            <span class="math-sub-tag">where the window probability itself is a sum:</span><br/>
+            P(d ∈ window | <code class="math-sym--ad">θ<sub>AD</sub></code>) = <span class="math-big">Σ</span><sub>i=d−14..d</sub> P(win = {i, …, i+14})
+          </div>
+        </div>
+      </div>
+
+      <div class="callout">
+        <strong>In plain English:</strong>
+        for each candidate day <em>d</em>, ask all three classifiers — "is d in a window?", "is d the day, given the window?", "did the step from 0→1 happen at d?" — and multiply the probabilities. Pick the <em>d</em> with the highest joint score.
+      </div>
+    </section>
+
+    <!-- =========================================================== -->
+    <!-- SLIDE 12B — END-TO-END PIPELINE DIAGRAM                       -->
+    <!-- =========================================================== -->
+    <section class="slide" data-title="Full Pipeline">
+      <header class="slide-header">
+        <div class="slide-kicker">Putting it together</div>
+        <h2>End-to-end pipeline</h2>
+      </header>
+
+      <div class="pipeline-svg">
+        <svg viewBox="0 0 1200 380" preserveAspectRatio="xMidYMid meet">
+          <defs>
+            <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L9,3 z" fill="#1A2A44"/>
+            </marker>
+          </defs>
+
+          <!-- Input -->
+          <g class="p-node p-node--input">
+            <rect x="20" y="140" width="160" height="100" rx="10"/>
+            <text x="100" y="180" text-anchor="middle" font-size="16" font-weight="600">Bing logs</text>
+            <text x="100" y="202" text-anchor="middle" font-size="12">138,306 users</text>
+            <text x="100" y="220" text-anchor="middle" font-size="12">18 months</text>
+          </g>
+          <line x1="180" y1="190" x2="220" y2="190" stroke="#1A2A44" stroke-width="2" marker-end="url(#arrowhead)"/>
+
+          <!-- Filter -->
+          <g class="p-node">
+            <rect x="220" y="140" width="160" height="100" rx="10"/>
+            <text x="300" y="180" text-anchor="middle" font-size="16" font-weight="600">Heuristic filter</text>
+            <text x="300" y="202" text-anchor="middle" font-size="12">≥3 sessions /</text>
+            <text x="300" y="220" text-anchor="middle" font-size="12">≥20 days</text>
+          </g>
+          <line x1="380" y1="190" x2="420" y2="190" stroke="#1A2A44" stroke-width="2" marker-end="url(#arrowhead)"/>
+
+          <!-- Features -->
+          <g class="p-node p-node--feat">
+            <rect x="420" y="80" width="180" height="80" rx="10"/>
+            <text x="510" y="110" text-anchor="middle" font-size="14" font-weight="600">Ontology features</text>
+            <text x="510" y="130" text-anchor="middle" font-size="11">1,963 terms · 3 levels</text>
+            <text x="510" y="146" text-anchor="middle" font-size="11">EXPERT filter</text>
+          </g>
+          <g class="p-node p-node--feat">
+            <rect x="420" y="180" width="180" height="80" rx="10"/>
+            <text x="510" y="210" text-anchor="middle" font-size="14" font-weight="600">Behavioral features</text>
+            <text x="510" y="230" text-anchor="middle" font-size="11">volume · temporal</text>
+            <text x="510" y="246" text-anchor="middle" font-size="11">query-level · boundary</text>
+          </g>
+          <line x1="600" y1="120" x2="640" y2="170" stroke="#1A2A44" stroke-width="2" marker-end="url(#arrowhead)"/>
+          <line x1="600" y1="220" x2="640" y2="200" stroke="#1A2A44" stroke-width="2" marker-end="url(#arrowhead)"/>
+
+          <!-- DX -->
+          <g class="p-node p-node--mart">
+            <rect x="640" y="140" width="180" height="100" rx="10"/>
+            <text x="730" y="170" text-anchor="middle" font-size="16" font-weight="600">MART · DX</text>
+            <text x="730" y="192" text-anchor="middle" font-size="11">N vs P  ·  PN vs PP</text>
+            <text x="730" y="210" text-anchor="middle" font-size="11">joint probability</text>
+            <text x="730" y="226" text-anchor="middle" font-size="11" fill="#D5614A">→ is this a patient?</text>
+          </g>
+          <line x1="820" y1="190" x2="860" y2="190" stroke="#1A2A44" stroke-width="2" marker-end="url(#arrowhead)"/>
+
+          <!-- DDX -->
+          <g class="p-node p-node--mart">
+            <rect x="860" y="140" width="180" height="100" rx="10"/>
+            <text x="950" y="170" text-anchor="middle" font-size="16" font-weight="600">MART · DDX</text>
+            <text x="950" y="192" text-anchor="middle" font-size="11">window · day · state</text>
+            <text x="950" y="210" text-anchor="middle" font-size="11">coarse-to-fine</text>
+            <text x="950" y="226" text-anchor="middle" font-size="11" fill="#D5614A">→ which day?</text>
+          </g>
+          <line x1="1040" y1="190" x2="1080" y2="190" stroke="#1A2A44" stroke-width="2" marker-end="url(#arrowhead)"/>
+
+          <!-- HMM -->
+          <g class="p-node p-node--hmm">
+            <rect x="1080" y="140" width="100" height="100" rx="10"/>
+            <text x="1130" y="180" text-anchor="middle" font-size="14" font-weight="600">HMM</text>
+            <text x="1130" y="200" text-anchor="middle" font-size="11">episode</text>
+            <text x="1130" y="216" text-anchor="middle" font-size="11">discovery</text>
+          </g>
+
+          <!-- Validation arrows -->
+          <text x="600" y="310" text-anchor="middle" font-size="12" fill="#4A5870">↑ validated against CDC incidence &amp; comScore demographics</text>
+        </svg>
+      </div>
+    </section>
+
+    <!-- =========================================================== -->
+    <!-- SLIDE 13 — BASELINES                                          -->
+    <!-- =========================================================== -->
+    <section class="slide" data-title="Baselines">
+      <header class="slide-header">
+        <div class="slide-kicker">Sanity check</div>
+        <h2>The baseline models</h2>
+        <p class="slide-lede">Are all those features &amp; classifiers worth it? Compare against the simplest possible rules.</p>
+      </header>
+
+      <div class="card-grid card-grid--2">
+        <article class="card card--baseline fragment">
+          <div class="baseline-tag">DX baseline</div>
+          <h3>Threshold rule</h3>
+          <p>Flag a user as positive if the <em>percentage</em> (or count) of their queries hitting <em>experiential</em> categories exceeds a fixed parameter.</p>
+          <code class="baseline-code">if experiential_ratio &gt; τ → positive</code>
+        </article>
+
+        <article class="card card--baseline fragment">
+          <div class="baseline-tag">DDX baseline</div>
+          <h3>Heuristic day pick</h3>
+          <p>Estimate the day of diagnosis by simply picking either:</p>
+          <ul class="quiet-list">
+            <li>the <em>first</em> day with experiential terms, or</li>
+            <li>the day with the <em>maximum</em> volume of experiential queries.</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <!-- =========================================================== -->
+    <!-- SLIDE 14 — EVALUATION                                         -->
+    <!-- =========================================================== -->
+    <section class="slide" data-title="Evaluation">
+      <header class="slide-header">
+        <div class="slide-kicker">Results</div>
+        <h2>Evaluation <span class="amp">&amp;</span> ablation</h2>
+        <p class="slide-lede">10-fold cross-validation on the manually labeled set.</p>
+      </header>
+
+      <div class="results-grid">
+        <div class="result-row fragment">
+          <div class="result-name">DX · max F1</div>
+          <div class="result-bars">
+            <div class="bar-row">
+              <span class="bar-label">Baseline</span>
+              <div class="bar"><div class="bar-fill bar-fill--muted" style="--w:54.7%"></div></div>
+              <span class="bar-val">54.7%</span>
+            </div>
+            <div class="bar-row">
+              <span class="bar-label">MART</span>
+              <div class="bar"><div class="bar-fill" style="--w:76.5%"></div></div>
+              <span class="bar-val">76.5%</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="result-row fragment">
+          <div class="result-name">DDX · within 15-day window <span class="muted small">· 100% recall</span></div>
+          <div class="result-bars">
+            <div class="bar-row">
+              <span class="bar-label">Baseline</span>
+              <div class="bar"><div class="bar-fill bar-fill--muted" style="--w:17.7%"></div></div>
+              <span class="bar-val">17.7%</span>
+            </div>
+            <div class="bar-row">
+              <span class="bar-label">MART</span>
+              <div class="bar"><div class="bar-fill" style="--w:88.5%"></div></div>
+              <span class="bar-val">88.5%</span>
+            </div>
+          </div>
+          <p class="result-extra">↳ at <strong>25 % recall</strong> (high-precision mode — only outputs most confident days): MART hits <strong>82.0 %</strong> on the <em>exact day</em> and <strong>99.0 %</strong> within 15 days.</p>
+        </div>
+      </div>
+
+      <div class="two-mini fragment">
+        <div class="mini">
+          <strong>Error nuance</strong>
+          <p>DDX errors are roughly symmetric — <strong>52%</strong> of mistakes are <em>too early</em>. Aligns with intense search activity while <em>awaiting</em> biopsy results.</p>
+        </div>
+        <div class="mini">
+          <strong>Ablation insight</strong>
+          <p>Removing the <em>DESCRIPTION</em> category (stage / grade terms) collapses DDX accuracy → staging searches are the sharpest diagnosis signal.</p>
+        </div>
+      </div>
+
+      <p class="footnote">⚠ Labels are <em>inferred</em> from search behavior — not verified medical truth.</p>
+    </section>
+
+    <!-- =========================================================== -->
+    <!-- SLIDE 15 — EPIDEMIOLOGICAL VALIDATION                         -->
+    <!-- =========================================================== -->
+    <section class="slide" data-title="Epi Validation">
+      <header class="slide-header">
+        <div class="slide-kicker">Validation without ground truth</div>
+        <h2>Does the population look like real patients?</h2>
+        <p class="slide-lede">No user identities → validate at the <em>aggregate</em> level.</p>
+      </header>
+
+      <div class="two-col">
+        <div class="col">
+          <h3 class="col-title">Geographic alignment</h3>
+          <p>Predicted patient density vs. <strong>CDC</strong> state-by-state incidence:</p>
+
+          <div class="corr-block">
+            <div class="corr-row">
+              <span class="corr-label">High-probability patients</span>
+              <div class="corr-bar"><div class="corr-fill" style="--w:74%"></div></div>
+              <span class="corr-value">r = 0.348</span>
+            </div>
+            <div class="corr-row">
+              <span class="corr-label">Raw 138K (no classifier)</span>
+              <div class="corr-bar"><div class="corr-fill corr-fill--low" style="--w:8%"></div></div>
+              <span class="corr-value corr-value--low">r = 0.036</span>
+            </div>
+          </div>
+          <p class="muted small">Order-of-magnitude improvement over the unfiltered pool — the classifier really is picking out patients, not just heavy searchers.</p>
+        </div>
+
+        <div class="col">
+          <h3 class="col-title">Demographic alignment <span class="muted small">(comScore)</span></h3>
+          <div class="demo-stats">
+            <div class="demo-stat fragment">
+              <div class="demo-num">88.9<span class="stat-unit">%</span></div>
+              <div class="demo-cap">female<br/><span class="muted">in the highest-probability bin</span></div>
+            </div>
+            <div class="demo-stat fragment">
+              <div class="demo-num">22.2<span class="stat-unit">%</span></div>
+              <div class="demo-cap">aged 65+<br/><span class="muted">consistent with real incidence</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================== -->
+    <!-- SLIDE 16 — HMM EPISODIC PATTERNS                              -->
+    <!-- =========================================================== -->
+    <section class="slide" data-title="HMM Episodes">
+      <header class="slide-header">
+        <div class="slide-kicker">Episode discovery</div>
+        <h2>A block HMM learns the clinical sequence</h2>
+        <p class="slide-lede">A <em>block HMM</em> = a regular HMM, but each day emits a <strong>bag of ontology categories</strong> instead of a single symbol — because a real day has many queries. 5 states · DDX state is constrained.</p>
+      </header>
+
+      <div class="hmm-svg">
+        <svg viewBox="0 0 1100 380" preserveAspectRatio="xMidYMid meet">
+          <defs>
+            <marker id="hmmArrow" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L7,3 z" fill="#4A5870"/>
+            </marker>
+          </defs>
+
+          <!-- States -->
+          <g class="hmm-state hmm-state--pre">
+            <circle cx="120" cy="190" r="62"/>
+            <text x="120" y="178" text-anchor="middle" font-size="14" font-weight="600">pre-DDX</text>
+            <text x="120" y="198" text-anchor="middle" font-size="11">biopsy</text>
+            <text x="120" y="214" text-anchor="middle" font-size="11">symptoms</text>
+          </g>
+
+          <g class="hmm-state hmm-state--ddx">
+            <circle cx="370" cy="190" r="62"/>
+            <text x="370" y="180" text-anchor="middle" font-size="14" font-weight="700">DDX</text>
+            <text x="370" y="200" text-anchor="middle" font-size="11">cancer</text>
+            <text x="370" y="216" text-anchor="middle" font-size="11">type / stage</text>
+          </g>
+
+          <g class="hmm-state hmm-state--postA">
+            <circle cx="650" cy="90" r="62"/>
+            <text x="650" y="80" text-anchor="middle" font-size="14" font-weight="600">post-DDX · A</text>
+            <text x="650" y="100" text-anchor="middle" font-size="11">surgery</text>
+            <text x="650" y="116" text-anchor="middle" font-size="11">immediate care</text>
+          </g>
+
+          <g class="hmm-state hmm-state--postB">
+            <circle cx="650" cy="290" r="62"/>
+            <text x="650" y="280" text-anchor="middle" font-size="14" font-weight="600">post-DDX · B</text>
+            <text x="650" y="300" text-anchor="middle" font-size="11">chemo</text>
+            <text x="650" y="316" text-anchor="middle" font-size="11">long-term tx</text>
+          </g>
+
+          <g class="hmm-state hmm-state--bg">
+            <circle cx="950" cy="190" r="62"/>
+            <text x="950" y="180" text-anchor="middle" font-size="14" font-weight="600">background</text>
+            <text x="950" y="200" text-anchor="middle" font-size="11">noise</text>
+            <text x="950" y="216" text-anchor="middle" font-size="11">filtering</text>
+          </g>
+
+          <!-- Transitions -->
+          <line x1="182" y1="190" x2="308" y2="190" stroke="#4A5870" stroke-width="2" marker-end="url(#hmmArrow)"/>
+          <line x1="425" y1="155" x2="595" y2="115" stroke="#4A5870" stroke-width="2" marker-end="url(#hmmArrow)"/>
+          <line x1="425" y1="225" x2="595" y2="265" stroke="#4A5870" stroke-width="2" marker-end="url(#hmmArrow)"/>
+          <path d="M708 110 Q820 80 890 170" stroke="#4A5870" stroke-width="2" fill="none" marker-end="url(#hmmArrow)" stroke-dasharray="4 4"/>
+          <path d="M708 270 Q820 290 890 210" stroke="#4A5870" stroke-width="2" fill="none" marker-end="url(#hmmArrow)" stroke-dasharray="4 4"/>
+
+          <!-- Self loops -->
+          <path d="M105 130 Q70 100 95 145" stroke="#4A5870" stroke-width="2" fill="none" marker-end="url(#hmmArrow)"/>
+          <path d="M635 30 Q600 0 625 45" stroke="#4A5870" stroke-width="2" fill="none" marker-end="url(#hmmArrow)"/>
+          <path d="M635 350 Q600 380 625 335" stroke="#4A5870" stroke-width="2" fill="none" marker-end="url(#hmmArrow)"/>
+        </svg>
+      </div>
+
+      <div class="callout">
+        The HMM didn’t know any of the medical sequence in advance — it
+        <em>discovered</em> it: pre-DDX → DDX → branching into immediate
+        surgery vs long-term chemo. Background emissions are isolated so
+        clinical transitions stay clean.
+      </div>
+    </section>
+
+    <!-- =========================================================== -->
+    <!-- SLIDE 16B — REAL HMM FIGURE (from Fig. 1 of paper)           -->
+    <!-- =========================================================== -->
+    <section class="slide slide--figure" data-title="Real HMM Figure">
+      <header class="slide-header">
+        <div class="slide-kicker">From the paper · Fig. 1</div>
+        <h2>The HMM the model actually discovered</h2>
+        <p class="slide-lede">Real transition probabilities and top-emitted terms per state.</p>
+      </header>
+
+      <div class="figure-frame">
+        <img src="images/fig1.png" alt="Figure 1 — discovered HMM with five states, transition probabilities (0.66, 0.69, 0.79, 0.83, 0.88) and top emitted ontology terms per state."/>
+      </div>
+
+      <p class="figure-caption">
+        Strong self-loops (e.g. 0.66, 0.79, 0.83) — once a user enters a stage they tend to stay there. After DDX, the model branches into immediate care (mastectomy / radiation / lumpectomy) and longer-term treatment (chemotherapy / hair loss / drugs).
+      </p>
+    </section>
+
+    <!-- =========================================================== -->
+    <!-- SLIDE 17 — MATHEMATICAL TIMELINE                              -->
+    <!-- =========================================================== -->
+    <section class="slide" data-title="Timeline of Illness">
+      <header class="slide-header">
+        <div class="slide-kicker">Aligning thousands of histories</div>
+        <h2>The mathematical timeline of illness</h2>
+      </header>
+
+      <div class="big-timeline">
+        <div class="bt-track">
+          <div class="bt-mark bt-mark--workup" style="--pos:10%">
+            <div class="bt-dot"></div>
+            <div class="bt-day">−20 d</div>
+            <div class="bt-label">workup &amp; biopsy</div>
+          </div>
+
+          <div class="bt-mark bt-mark--ddx" style="--pos:35%">
+            <div class="bt-dot bt-dot--ddx"></div>
+            <div class="bt-day"><strong>DDX</strong></div>
+            <div class="bt-label">day 0 — diagnosis learned</div>
+          </div>
+
+          <div class="bt-mark bt-mark--surgery" style="--pos:60%">
+            <div class="bt-dot"></div>
+            <div class="bt-day">+22 d</div>
+            <div class="bt-label">first surgery searches</div>
+          </div>
+
+          <div class="bt-mark bt-mark--chemo" style="--pos:90%">
+            <div class="bt-dot"></div>
+            <div class="bt-day">+50 d</div>
+            <div class="bt-label">first chemo searches<br/><span class="muted">(~28 d after surgery)</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="col">
+          <h3 class="col-title">Clinical reality check</h3>
+          <p>Real-world studies report a <strong>median 29 days</strong> from suspicious mammogram to diagnosis. The search-log average is slightly shorter — patients search for treatments <em>before</em> the procedure happens.</p>
+        </div>
+        <div class="col">
+          <h3 class="col-title">The disruption</h3>
+          <p>Non-cancer queries drop to <strong>0.88×</strong> baseline at <strong>60–90 d</strong> after DDX and <strong>0.79×</strong> at <strong>300–330 d</strong> — cancer search <em>cuts into</em> normal life. Cancer-related search is <strong>3.89×</strong> heavier 60–90 d after DDX than before, and still <strong>1.25×</strong> baseline a year later.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================== -->
+    <!-- SLIDE 17B — ALIGNED TIMELINES AROUND DDX (Fig. 2)            -->
+    <!-- =========================================================== -->
+    <section class="slide slide--figure" data-title="Aligned Timelines (Fig. 2)">
+      <header class="slide-header">
+        <div class="slide-kicker">From the paper · Fig. 2 — population view</div>
+        <h2>Aligned queries around the diagnosis day</h2>
+        <p class="slide-lede">Thousands of user timelines, all aligned so day 0 is the inferred DDX.</p>
+      </header>
+
+      <div class="figure-frame">
+        <img src="images/fig2.png" alt="Figure 2 — query volume around DDX aligned across users. Above: total queries by category around DDX, screening, surgery and chemotherapy pivot points. Below: stacked distribution of categories over days since DDX."/>
+      </div>
+
+      <p class="figure-caption">
+        A <strong>pivot point</strong> = the first day a user searches for terms from a clinical phase — screening (first mammography/ultrasound query before DDX), surgery (first surgery query after DDX), chemo (first chemo query after the surgery pivot). Thousands of users are aligned around each pivot, and the clinical sequence emerges in the average.
+      </p>
+    </section>
+
+    <!-- =========================================================== -->
+    <!-- SLIDE 18 — STAGE-BASED SEARCH ORIGINS                         -->
+    <!-- =========================================================== -->
+    <section class="slide" data-title="Stage vs Origin">
+      <header class="slide-header">
+        <div class="slide-kicker">Predictive insight</div>
+        <h2>How the journey starts predicts the stage</h2>
+      </header>
+
+      <div class="two-col">
+        <div class="col">
+          <div class="origin-card origin-card--sym fragment">
+            <div class="origin-icon">🩻</div>
+            <h3>Symptom-led searches first</h3>
+            <p>Users who queried symptoms (pain, lumps) <em>before</em> their inferred diagnosis day.</p>
+            <div class="origin-stat">
+              avg. stage <strong>1.83</strong>
+            </div>
+            <p class="muted small">Symptom-prompted workups usually find more advanced cancers.</p>
+          </div>
+        </div>
+
+        <div class="col">
+          <div class="origin-card origin-card--scr fragment">
+            <div class="origin-icon">🔬</div>
+            <h3>No symptom queries</h3>
+            <p>Users with <em>no</em> symptom queries prior to diagnosis — likely caught at routine screening.</p>
+            <div class="origin-stat">
+              avg. stage <strong>1.54</strong>
+            </div>
+            <p class="muted small">Mirrors the clinical reality of routine mammography.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout fragment">
+        The logs not only locate <em>when</em> the diagnosis happened — they
+        partially reveal <em>how</em> it was found.
+      </div>
+
+      <p class="footnote">⚠ Suggestive, not statistically significant — the paper reports <strong>p = 0.154</strong>. A directional signal consistent with clinical reality, but not a confirmed effect.</p>
+    </section>
+
+    <!-- =========================================================== -->
+    <!-- SLIDE 18B — STAGE-SPECIFIC SEARCH CURVES (Fig. 3)            -->
+    <!-- =========================================================== -->
+    <section class="slide slide--figure" data-title="Stage Curves (Fig. 3)">
+      <header class="slide-header">
+        <div class="slide-kicker">From the paper · Fig. 3</div>
+        <h2>Search activity by cancer stage</h2>
+        <p class="slide-lede">Screening / surgery / chemotherapy queries plotted separately for stages 0 – IV.</p>
+      </header>
+
+      <div class="figure-frame">
+        <img src="images/fig3.png" alt="Figure 3 — three line graphs showing average query volume per day around DDX, separated by cancer stage (0, I, II, III, IV). Screening peaks around DDX; surgery peaks shortly after; chemotherapy peaks later and stays elevated for stage IV."/>
+      </div>
+
+      <p class="figure-caption">
+        Stage IV patients spike <em>lower</em> on screening (fewer routine catches) and <em>higher and longer</em> on chemotherapy — the search log faithfully mirrors the clinical course of more advanced disease.
+      </p>
+    </section>
+
+    <!-- =========================================================== -->
+    <!-- SLIDE 19 — ETHICS & PRIVACY                                   -->
+    <!-- =========================================================== -->
+    <section class="slide" data-title="Ethics & Privacy">
+      <header class="slide-header">
+        <div class="slide-kicker">Responsibility</div>
+        <h2>Ethics, privacy <span class="amp">&amp;</span> data handling</h2>
+      </header>
+
+      <div class="ethics-grid">
+        <div class="ethics-item fragment">
+          <div class="ethics-num">01</div>
+          <h3>Consent <span class="amp">&amp;</span> anonymization</h3>
+          <p>Data from users who explicitly consented via a browser add-on’s terms. All user-identifying information stripped at the source.</p>
+        </div>
+
+        <div class="ethics-item fragment">
+          <div class="ethics-num">02</div>
+          <h3>IP scrubbing</h3>
+          <p>Researchers had no IP addresses. Location aggregated to city / town level — one lat-long for the whole town — to prevent individual tracking.</p>
+        </div>
+
+        <div class="ethics-item fragment">
+          <div class="ethics-num">03</div>
+          <h3>No direct contact</h3>
+          <p>Researchers could not contact users to verify diagnoses — which is exactly why epidemiological validation methods were needed.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================== -->
+    <!-- SLIDE 20 — LIMITATIONS                                        -->
+    <!-- =========================================================== -->
+    <section class="slide" data-title="Limitations">
+      <header class="slide-header">
+        <div class="slide-kicker">What the authors do <em>not</em> claim</div>
+        <h2>Limitations <span class="amp">&amp;</span> framing</h2>
+      </header>
+
+      <div class="claim-row claim-row--no fragment">
+        <span class="claim-tag claim-tag--no">×</span>
+        <div>
+          <strong>Not verified medical truth.</strong>
+          Labels are inferred from search behavior on a manually annotated subset.
+        </div>
+      </div>
+      <div class="claim-row claim-row--no fragment">
+        <span class="claim-tag claim-tag--no">×</span>
+        <div>
+          <strong>Not “these users are definitely patients.”</strong>
+          The authors carefully avoid this claim.
+        </div>
+      </div>
+      <div class="claim-row claim-row--yes fragment">
+        <span class="claim-tag claim-tag--yes">✓</span>
+        <div>
+          <strong>The actual claim:</strong>
+          we identify <em>searchers exhibiting a strong, sudden interest</em>
+          in breast cancer amid a larger temporal structure that mimics the
+          clinical sequence of a patient.
+        </div>
+      </div>
+      <div class="claim-row claim-row--caveat fragment">
+        <span class="claim-tag claim-tag--caveat">!</span>
+        <div>
+          <strong>The “loved one” confound.</strong>
+          Diagnosis triggers intense search by family too — the algorithm
+          likely captures whole <em>care networks</em>, not strictly patients.
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================== -->
+    <!-- SLIDE 21 — CONCLUSION                                         -->
+    <!-- =========================================================== -->
+    <section class="slide slide--conclusion" data-title="Conclusion">
+      <header class="slide-header">
+        <div class="slide-kicker">Wrapping up</div>
+        <h2>Conclusion <span class="amp">&amp;</span> CS implications</h2>
+      </header>
+
+      <div class="conclusion-grid">
+        <div class="conc-card fragment">
+          <h3>📜 Summary</h3>
+          <p>Large-scale anonymized search logs contain rich temporal signals that effectively map to the real-world clinical life-cycle of serious illness.</p>
+        </div>
+
+        <div class="conc-card fragment">
+          <h3>⚙️ Implication for system design</h3>
+          <p>By predicting a user’s current <em>episode</em>, search engines can dynamically tailor results — surfacing “treatment preparation” info instead of “diagnosis explainers” for someone weeks into care.</p>
+        </div>
+
+        <div class="conc-card fragment">
+          <h3>💡 Broader impact</h3>
+          <p>A new framework for understanding the evolving, day-to-day information gaps of patients — paving the way for smarter decision-support systems in healthcare.</p>
+        </div>
+      </div>
+
+      <div class="thanks fragment">
+        Thanks — questions?
+      </div>
+    </section>
+
+   </div>
+  </div>
+
+  <!-- =================================================================
+       NAVIGATION CHROME (auto-rendered)
+       ================================================================= -->
+  <div class="progress" id="progress"></div>
+  <div class="hud">
+    <button class="hud-btn" id="prevBtn" aria-label="Previous slide">◀</button>
+    <span class="hud-counter" id="counter">1 / 1</span>
+    <button class="hud-btn" id="nextBtn" aria-label="Next slide">▶</button>
+  </div>
+
+  <!-- Overview mode -->
+  <div class="overview" id="overview" hidden>
+    <div class="overview-grid" id="overviewGrid"></div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
