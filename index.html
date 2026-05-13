@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=2" />
+  <link rel="stylesheet" href="styles.css?v=13" />
 </head>
 <body>
 
@@ -68,6 +68,154 @@
     </section>
 
     <!-- =========================================================== -->
+    <!-- AGENDA                                                       -->
+    <!-- =========================================================== -->
+    <section class="slide slide--agenda" data-title="Agenda">
+      <header class="slide-header">
+        <div class="slide-kicker">Roadmap</div>
+        <h2>How the talk is organized</h2>
+      </header>
+
+      <div class="agenda-grid">
+        <article class="agenda-item">
+          <span class="agenda-num">1</span>
+          <strong>Motivation</strong>
+          <p>Why search logs can reveal illness timelines.</p>
+        </article>
+        <article class="agenda-item">
+          <span class="agenda-num">2</span>
+          <strong>Data and labels</strong>
+          <p>How raw queries become inferred training labels.</p>
+        </article>
+        <article class="agenda-item">
+          <span class="agenda-num">3</span>
+          <strong>Models</strong>
+          <p>DX asks who; DDX asks when.</p>
+        </article>
+        <article class="agenda-item">
+          <span class="agenda-num">4</span>
+          <strong>Evaluation</strong>
+          <p>Accuracy, feature comparisons, and aggregate validation.</p>
+        </article>
+        <article class="agenda-item">
+          <span class="agenda-num">5</span>
+          <strong>Episode discovery</strong>
+          <p>Align timelines and learn clinical phases with an HMM.</p>
+        </article>
+        <article class="agenda-item">
+          <span class="agenda-num">6</span>
+          <strong>Limits</strong>
+          <p>Privacy, uncertainty, and what the paper cannot prove.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- =========================================================== -->
+    <!-- EARLY PIPELINE OVERVIEW                                      -->
+    <!-- =========================================================== -->
+    <section class="slide" data-title="Pipeline Overview">
+      <header class="slide-header">
+        <div class="slide-kicker">Putting it together</div>
+        <h2>Two prediction tasks, then timeline analysis</h2>
+        <p class="slide-lede">First identify likely new-diagnosis searchers (DX), then estimate their diagnosis day (DDX), then align histories to study episodes.</p>
+      </header>
+
+      <div class="pipeline-svg">
+        <svg viewBox="0 0 1200 380" preserveAspectRatio="xMidYMid meet">
+          <defs>
+            <marker id="arrowheadEarly" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L9,3 z" fill="#1A2A44"/>
+            </marker>
+          </defs>
+
+          <g class="p-stage-label">
+            <rect x="20" y="38" width="620" height="28" rx="14"/>
+            <text x="330" y="57" text-anchor="middle">1. Filter corpus, then extract features</text>
+          </g>
+          <g class="p-stage-label p-stage-label--predict">
+            <rect x="690" y="38" width="350" height="28" rx="14"/>
+            <text x="865" y="57" text-anchor="middle">2. Predict DX, then DDX</text>
+          </g>
+          <g class="p-stage-label p-stage-label--analysis">
+            <rect x="1060" y="38" width="120" height="28" rx="14"/>
+            <text x="1120" y="57" text-anchor="middle">3. Episode analysis</text>
+          </g>
+
+          <g class="p-node p-node--input">
+            <rect x="20" y="140" width="160" height="100" rx="10"/>
+            <text x="100" y="180" text-anchor="middle" font-size="16" font-weight="600">Bing logs</text>
+            <text x="100" y="202" text-anchor="middle" font-size="12">138,306 users</text>
+            <text x="100" y="220" text-anchor="middle" font-size="12">18 months</text>
+          </g>
+          <line x1="180" y1="190" x2="220" y2="190" stroke="#1A2A44" stroke-width="2" marker-end="url(#arrowheadEarly)"/>
+
+          <g class="p-node">
+            <rect x="220" y="140" width="160" height="100" rx="10"/>
+            <text x="300" y="180" text-anchor="middle" font-size="16" font-weight="600">Heuristic filter</text>
+            <text x="300" y="202" text-anchor="middle" font-size="12">&ge;3 sessions /</text>
+            <text x="300" y="220" text-anchor="middle" font-size="12">&ge;20 days</text>
+          </g>
+          <line x1="380" y1="190" x2="420" y2="190" stroke="#1A2A44" stroke-width="2" marker-end="url(#arrowheadEarly)"/>
+
+          <g class="p-node p-node--feat p-node--features">
+            <rect x="420" y="96" width="220" height="188" rx="10"/>
+            <text x="530" y="124" text-anchor="middle" font-size="15" font-weight="700">Feature extraction</text>
+            <text x="440" y="150" font-size="11" font-weight="700">Ontology / lexical</text>
+            <text x="440" y="166" font-size="10.5">1,963 terms &middot; 3 levels &middot; EXPERT flag</text>
+            <text x="440" y="194" font-size="11" font-weight="700">Query phrasing</text>
+            <text x="440" y="210" font-size="10.5">pronouns &middot; experiential phrases</text>
+            <text x="440" y="238" font-size="11" font-weight="700">Volume patterns</text>
+            <text x="440" y="254" font-size="10.5">cancer-query ratios &middot; category counts</text>
+            <text x="440" y="272" font-size="11" font-weight="700">Temporal / boundary</text>
+          </g>
+          <line x1="640" y1="190" x2="690" y2="190" stroke="#1A2A44" stroke-width="2" marker-end="url(#arrowheadEarly)"/>
+
+          <g class="p-node p-node--mart">
+            <rect x="690" y="140" width="160" height="100" rx="10"/>
+            <text x="770" y="164" text-anchor="middle" font-size="16" font-weight="600">MART &middot; DX</text>
+            <text x="770" y="184" text-anchor="middle" font-size="11">Who looks like PP?</text>
+            <text x="770" y="202" text-anchor="middle" font-size="11">N vs P &middot; PN vs PP</text>
+            <text x="770" y="222" text-anchor="middle" font-size="11" fill="#D5614A">&rarr; likely searcher</text>
+          </g>
+          <line x1="850" y1="190" x2="880" y2="190" stroke="#1A2A44" stroke-width="2" marker-end="url(#arrowheadEarly)"/>
+
+          <g class="p-node p-node--mart">
+            <rect x="880" y="140" width="160" height="100" rx="10"/>
+            <text x="960" y="164" text-anchor="middle" font-size="16" font-weight="600">MART &middot; DDX</text>
+            <text x="960" y="184" text-anchor="middle" font-size="11">When is day 0?</text>
+            <text x="960" y="202" text-anchor="middle" font-size="11">window &middot; day &middot; state</text>
+            <text x="960" y="222" text-anchor="middle" font-size="11" fill="#D5614A">&rarr; diagnosis day</text>
+          </g>
+          <line x1="1040" y1="190" x2="1080" y2="190" stroke="#1A2A44" stroke-width="2" marker-end="url(#arrowheadEarly)"/>
+
+          <g class="p-node p-node--hmm">
+            <rect x="1080" y="140" width="100" height="100" rx="10"/>
+            <text x="1130" y="180" text-anchor="middle" font-size="14" font-weight="600">block HMM</text>
+            <text x="1130" y="200" text-anchor="middle" font-size="11">aligned</text>
+            <text x="1130" y="216" text-anchor="middle" font-size="11">episodes</text>
+          </g>
+
+          <text x="600" y="310" text-anchor="middle" font-size="12" fill="#4A5870">Validation without ground truth: CDC incidence &amp; comScore demographics</text>
+          <text x="840" y="342" text-anchor="middle" font-size="13" fill="#D5614A" font-weight="600">DX = who? &middot; DDX = when?</text>
+        </svg>
+      </div>
+    </section>
+
+    <!-- =========================================================== -->
+    <!-- SECTION 1                                                    -->
+    <!-- =========================================================== -->
+    <section class="slide slide--section section--motivation" data-title="Section 1">
+      <div class="section-shell">
+        <div class="section-num">01</div>
+        <div>
+          <div class="slide-kicker">Motivation</div>
+          <h2>Why search logs can reveal illness timelines</h2>
+          <p>Before the models, we need the medical context and the core inference problem.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================== -->
     <!-- SLIDE 2 — MEDICAL BACKGROUND                                 -->
     <!-- =========================================================== -->
     <section class="slide" data-title="Medical Background">
@@ -82,23 +230,26 @@
           <div class="card-num">1</div>
           <h3>Tumor <span class="amp">&amp;</span> Biopsy</h3>
           <p>A <em>tumor</em> is an abnormal mass. When screening flags one, a doctor orders a <em>biopsy</em> — a tissue sample — to determine if it is cancerous.</p>
+          <img class="medical-card-img" src="images/Biopsy600x460-600x460.jpg" alt="Biopsy procedure illustration" />
         </article>
 
         <article class="card fragment">
           <div class="card-num">2</div>
           <h3>Diagnosis <span class="amp">&amp;</span> Staging</h3>
           <p>Pathology confirms the type, grade, and <em>stage</em>. Stages run from <strong>0</strong> (non-invasive) to <strong>IV</strong> (metastasized to other organs).</p>
+          <img class="medical-card-img" src="images/staging.png" alt="Cancer staging illustration" />
         </article>
 
         <article class="card fragment">
           <div class="card-num">3</div>
           <h3>Treatment Pipeline</h3>
           <p>Care follows a typical order: <em>surgery</em> (lumpectomy / mastectomy) → <em>chemotherapy</em> and / or <em>radiation</em>.</p>
+          <img class="medical-card-img" src="images/chimo.png" alt="Chemotherapy treatment illustration" />
         </article>
       </div>
 
       <div class="callout fragment">
-        Why this matters for CS: each of these events leaves a distinctive
+        Why this matters: each of these events leaves a distinctive
         <em>search fingerprint</em> — and they appear in a predictable order.
       </div>
     </section>
@@ -127,7 +278,7 @@
         </div>
 
         <div class="col">
-          <h3 class="col-title">The CS goals</h3>
+          <h3 class="col-title">The goals</h3>
           <ol class="goal-list">
             <li class="fragment">
               <span class="goal-tag">DX</span>
@@ -197,7 +348,7 @@
     <!-- =========================================================== -->
     <!-- SLIDE 5 — PRELIMINARY SURVEY                                 -->
     <!-- =========================================================== -->
-    <section class="slide" data-title="Preliminary Survey">
+    <section class="slide slide--prelim-survey" data-title="Preliminary Survey">
       <header class="slide-header">
         <div class="slide-kicker">Step 0 — motivation, not validation</div>
         <h2>What might a real patient search for?</h2>
@@ -210,17 +361,34 @@
             <div class="stat-num">867</div>
             <div class="stat-cap">U.S. Microsoft employees surveyed · <strong>6 %</strong> personally diagnosed with any cancer · breast cancer was <strong>13.5 %</strong> of specified cancer-type responses</div>
           </div>
-          <div class="stat-block stat-block--accent">
-            <div class="stat-num">2.62<span class="stat-unit">×</span></div>
-            <div class="stat-cap">Respondents personally diagnosed with cancer were more likely to search for <em>explanations of pathology reports</em> than non-diagnosed respondents</div>
-          </div>
-          <p class="muted small">Also more likely to search for staging / grading, healthcare providers, and treatment side effects.</p>
+          <p class="muted">The survey is used to motivate features, not to validate the final model. The final labels still come from search-log annotation.</p>
         </div>
 
         <div class="col">
-          <h3 class="col-title">Why a survey first?</h3>
-          <p>It told the researchers <em>which terms</em> deserve to be treated as <strong>experiential</strong> — strong positive signals in the feature space.</p>
+          <img class="survey-visual" src="images/25042_profile_microsoft.jpeg" alt="Microsoft employees" />
+        </div>
+      </div>
+    </section>
 
+    <section class="slide slide--survey-signals" data-title="Survey Signals">
+      <header class="slide-header">
+        <div class="slide-kicker">Step 0 — feature motivation</div>
+        <h2>Survey answers became search signals</h2>
+        <p class="slide-lede">The useful output is not a patient label. It is a list of search categories that diagnosed respondents used more often.</p>
+      </header>
+
+      <div class="two-col">
+        <div class="col">
+          <h3 class="col-title">Why a survey first?</h3>
+          <p>It told the researchers <em>which terms</em> deserve to be treated as <strong>experiential</strong> — stronger positive signals in the feature space.</p>
+          <div class="stat-block stat-block--accent">
+            <div class="stat-num">2.62<span class="stat-unit">×</span></div>
+            <div class="stat-cap">Respondents personally diagnosed with cancer were more likely to search for <em>explanations of pathology reports</em> than non-diagnosed respondents.</div>
+          </div>
+          <p class="muted small">They were also more likely to search for staging / grading, healthcare providers, and treatment side effects.</p>
+        </div>
+
+        <div class="col">
           <div class="impact-card fragment">
             <div class="impact-arrow">→</div>
             <div>
@@ -242,12 +410,244 @@
     </section>
 
     <!-- =========================================================== -->
+    <!-- SLIDE 5B — SURVEY TABLE I                                  -->
+    <!-- =========================================================== -->
+    <section class="slide slide--survey-table" data-title="Survey Table I">
+      <header class="slide-header">
+        <div class="slide-kicker">From the paper · Table I</div>
+        <h2>Survey categories that motivated the features</h2>
+        <p class="slide-lede">Diagnosed respondents were asked what cancer-related information they searched for. The ratio compares diagnosed respondents with all other survey respondents.</p>
+      </header>
+
+      <div class="survey-table-card">
+        <table class="survey-table" aria-label="Cancer search categories from Table I">
+          <thead>
+            <tr>
+              <th>Search information category</th>
+              <th>Diagnosed searched</th>
+              <th>Diagnosed / others</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="survey-row--strong">
+              <td>Information about the type of cancer</td>
+              <td>100.0%</td>
+              <td><span class="ratio-pill">1.60&times;</span></td>
+            </tr>
+            <tr class="survey-row--strong">
+              <td>Information about cancer staging / grading</td>
+              <td>88.2%</td>
+              <td><span class="ratio-pill">1.47&times;</span></td>
+            </tr>
+            <tr>
+              <td>Prognosis, survival rates, or statistics</td>
+              <td>82.4%</td>
+              <td>1.09&times;</td>
+            </tr>
+            <tr>
+              <td>Information about treatment options</td>
+              <td>76.5%</td>
+              <td>1.09&times;</td>
+            </tr>
+            <tr>
+              <td>Side effects of treatment</td>
+              <td>70.6%</td>
+              <td>1.26&times;</td>
+            </tr>
+            <tr>
+              <td>Information about the diagnostic process</td>
+              <td>58.8%</td>
+              <td>1.12&times;</td>
+            </tr>
+            <tr class="survey-row--strong">
+              <td>Explanations of a pathology report</td>
+              <td>52.9%</td>
+              <td><span class="ratio-pill">2.62&times;</span></td>
+            </tr>
+            <tr>
+              <td>Advances in treatment and other research</td>
+              <td>52.9%</td>
+              <td>1.36&times;</td>
+            </tr>
+            <tr class="survey-row--strong">
+              <td>Healthcare providers</td>
+              <td>47.1%</td>
+              <td><span class="ratio-pill">2.06&times;</span></td>
+            </tr>
+            <tr>
+              <td>Symptoms and signs of cancer or metastasis</td>
+              <td>41.2%</td>
+              <td>0.86&times;</td>
+            </tr>
+            <tr>
+              <td>Diet, exercise, and lifestyle issues</td>
+              <td>35.3%</td>
+              <td>1.17&times;</td>
+            </tr>
+            <tr class="survey-row--strong">
+              <td>Health insurance and financial issues</td>
+              <td>17.6%</td>
+              <td><span class="ratio-pill">1.48&times;</span></td>
+            </tr>
+            <tr>
+              <td>Support groups and online communities</td>
+              <td>11.8%</td>
+              <td>0.76&times;</td>
+            </tr>
+            <tr>
+              <td>Cancer awareness and outreach</td>
+              <td>5.9%</td>
+              <td>0.42&times;</td>
+            </tr>
+            <tr>
+              <td>Stories from cancer survivors / celebrities</td>
+              <td>5.9%</td>
+              <td>0.30&times;</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p class="survey-table-note"><strong>How to read it:</strong> high-ratio categories are useful search signals, but the survey itself is motivation only; the labels later remain inferred from logs.</p>
+      </div>
+    </section>
+
+    <!-- =========================================================== -->
+    <!-- SECTION 2                                                    -->
+    <!-- =========================================================== -->
+    <section class="slide slide--section section--data" data-title="Section 2">
+      <div class="section-shell">
+        <div class="section-num">02</div>
+        <div>
+          <div class="slide-kicker">Data, labels, features</div>
+          <h2>From raw queries to model-ready signals</h2>
+          <p>The paper has no medical records, so labels and features are inferred from search behavior.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================== -->
+    <!-- DISCUSSION — PP LABELING: USER A                            -->
+    <!-- =========================================================== -->
+    <section class="slide slide--tagger-case" data-title="Discussion: User A">
+      <header class="slide-header">
+        <div class="slide-kicker">Annotation exercise · PP label</div>
+        <h2>User A: personal diagnosis, caregiver, or work?</h2>
+        <p class="slide-lede">The same medical vocabulary can support more than one story.</p>
+      </header>
+
+      <div class="case-query-log case-query-log--full">
+        <div class="case-row"><span>Oct 4</span><strong>breast biopsy results meaning</strong></div>
+        <div class="case-row"><span>Oct 5</span><strong>invasive ductal carcinoma stage 2</strong></div>
+        <div class="case-row"><span>Oct 5</span><strong>breast cancer survival rate by stage</strong></div>
+        <div class="case-row"><span>Oct 6</span><strong>pain after breast biopsy normal</strong></div>
+        <div class="case-row"><span>Oct 6</span><strong>mammography follow up after biopsy</strong></div>
+      </div>
+    </section>
+
+    <!-- =========================================================== -->
+    <!-- DISCUSSION — PP LABELING: USER B                            -->
+    <!-- =========================================================== -->
+    <section class="deprecated-slide" data-title="Discussion: User B">
+      <header class="slide-header">
+        <div class="slide-kicker">Annotation exercise · PP label</div>
+        <h2>User B: new diagnosis, old diagnosis, or unclear?</h2>
+        <p class="slide-lede">This user has stronger personal-looking evidence, but the timing still matters.</p>
+      </header>
+
+      <div class="case-query-log case-query-log--full">
+        <div class="case-row"><span>Apr 2</span><strong>pain after breast biopsy</strong></div>
+        <div class="case-row"><span>Apr 8</span><strong>how long does it take for biopsy results</strong></div>
+        <div class="case-row"><span>Apr 9</span><strong>stage 2a breast cancer</strong></div>
+        <div class="case-row"><span>Apr 9</span><strong>invasive ductal carcinoma</strong></div>
+        <div class="case-row"><span>Apr 10</span><strong>breast reconstruction after cancer</strong></div>
+        <div class="case-row"><span>Apr 12</span><strong>mastectomy recovery time</strong></div>
+      </div>
+    </section>
+
+    <!-- =========================================================== -->
+    <!-- DISCUSSION — PP LABELING: USER C                            -->
+    <!-- =========================================================== -->
+    <section class="slide slide--tagger-case" data-title="Discussion: User B">
+      <header class="slide-header">
+        <div class="slide-kicker">Annotation exercise · PP label</div>
+        <h2>User B: does this look personally involved?</h2>
+        <p class="slide-lede">Fictitious search history.</p>
+      </header>
+
+      <div class="case-query-log case-query-log--full">
+        <div class="case-row"><span>Mar 3</span><strong>lump in breast</strong></div>
+        <div class="case-row"><span>Mar 5</span><strong>should I get a breast biopsy</strong></div>
+        <div class="case-row"><span>Mar 8</span><strong>can biopsy tell if lump is cancer</strong></div>
+        <div class="case-row"><span>Mar 10</span><strong>how long to wait for biopsy results</strong></div>
+        <div class="case-row"><span>Mar 12</span><strong>breast biopsy results meaning</strong></div>
+      </div>
+    </section>
+
+    <!-- =========================================================== -->
+    <!-- DISCUSSION — PP LABELING: USER D                            -->
+    <!-- =========================================================== -->
+    <section class="slide slide--tagger-case" data-title="Discussion: User C">
+      <header class="slide-header">
+        <div class="slide-kicker">Annotation exercise · PP label</div>
+        <h2>User C: patient or professional?</h2>
+        <p class="slide-lede">Technical medical language can look important, but it may come from work rather than illness.</p>
+      </header>
+
+      <div class="case-query-log case-query-log--full">
+        <div class="case-row"><span>Jan 11</span><strong>breast cancer patient education pdf</strong></div>
+        <div class="case-row"><span>Jan 11</span><strong>icd 10 breast cancer billing</strong></div>
+        <div class="case-row"><span>Jan 12</span><strong>tamoxifen side effects handout</strong></div>
+        <div class="case-row"><span>Jan 12</span><strong>breast cancer discharge instructions</strong></div>
+        <div class="case-row"><span>Jan 13</span><strong>oncology clinic referral form breast cancer</strong></div>
+      </div>
+    </section>
+
+    <!-- =========================================================== -->
+    <!-- DISCUSSION — DDX LABELING                                   -->
+    <!-- =========================================================== -->
+    <section class="slide slide--ddx-exercise" data-title="Tagger Exercise: DDX">
+      <header class="slide-header">
+        <div class="slide-kicker">Annotation exercise · exact day</div>
+        <h2>You are the tagger: where is DDX?</h2>
+        <p class="slide-lede">A diagnosis day is not observed in the logs. The tagger infers it from the sudden change in what the user searches.</p>
+      </header>
+
+      <div class="ddx-exercise-layout">
+        <div class="ddx-choice-panel">
+          <h3>Which date would you choose?</h3>
+          <div class="ddx-choice">Dec 1 <span>biopsy discomfort</span></div>
+          <div class="ddx-choice">Dec 9 <span>waiting for results</span></div>
+          <div class="ddx-choice">Dec 12 <span>type / stage / grade appears</span></div>
+          <div class="ddx-choice">Dec 15 <span>treatment planning</span></div>
+        </div>
+
+        <div class="ddx-mini-log">
+          <div class="mini-log-row"><span>Dec 1</span><strong>pain after biopsy</strong><em>diagnostics</em></div>
+          <div class="mini-log-row"><span>Dec 9</span><strong>how long does it take for biopsy results</strong><em>diagnostics</em></div>
+          <div class="mini-log-row"><span>Dec 12</span><strong>stage 2a breast cancer</strong><em>staging</em></div>
+          <div class="mini-log-row"><span>Dec 12</span><strong>invasive ductal carcinoma</strong><em>type</em></div>
+          <div class="mini-log-row"><span>Dec 12</span><strong>poorly differentiated idc breast cancer</strong><em>grading</em></div>
+          <div class="mini-log-row"><span>Dec 13</span><strong>breast cancer treatment</strong><em>treatment</em></div>
+          <div class="mini-log-row"><span>Dec 15</span><strong>mastectomy pros and cons</strong><em>treatment</em></div>
+        </div>
+      </div>
+
+      <div class="ddx-context-strip">
+        <span>Visible evidence only:</span>
+        biopsy context → waiting for results → type / stage / grade language → treatment planning
+      </div>
+    </section>
+
+    <!-- =========================================================== -->
     <!-- SLIDE 6 — DATA COLLECTION                                    -->
     <!-- =========================================================== -->
-    <section class="slide" data-title="Data Collection">
+    <section class="slide slide--data-collection" data-title="Data Collection">
       <header class="slide-header">
         <div class="slide-kicker">Dataset</div>
-        <h2>Data Collection <span class="amp">&amp;</span> Scope</h2>
+        <div class="data-title-row">
+          <h2>Data Collection <span class="amp">&amp;</span> Scope</h2>
+          <img class="bing-header-img" src="images/bing-site-search.webp" alt="Bing search page" />
+        </div>
       </header>
 
       <div class="funnel">
@@ -511,7 +911,121 @@
     <!-- =========================================================== -->
     <!-- SLIDE 8 — GROUND TRUTH PHASE 3 & CONFLICTS                    -->
     <!-- =========================================================== -->
-    <section class="slide" data-title="Ground Truth (3)">
+    <section class="slide slide--dx-resolution" data-title="DX Label Resolution">
+      <header class="slide-header">
+        <div class="slide-kicker">Ground truth &middot; annotation</div>
+        <h2>DX labels: agreement and conservative resolution</h2>
+        <p class="slide-lede">The paper first labels whether a user looks like a new-diagnosis searcher. These are inferred search labels, not medical-record labels.</p>
+      </header>
+
+      <div class="two-col">
+        <div class="col">
+          <h3 class="col-title">Three annotator labels</h3>
+
+          <div class="label-row">
+            <span class="lbl lbl--N">N</span>
+            <div>
+              <strong>No sustained breast-cancer focus</strong>
+              <p>Often general interest, professional use, or too little evidence.</p>
+            </div>
+          </div>
+          <div class="label-row">
+            <span class="lbl lbl--PN">PN</span>
+            <div>
+              <strong>Sustained focus, but not newly diagnosed</strong>
+              <p>The diagnosis likely happened before the log window.</p>
+            </div>
+          </div>
+          <div class="label-row">
+            <span class="lbl lbl--PP">PP</span>
+            <div>
+              <strong>New-diagnosis pattern inside the logs</strong>
+              <p>This is the positive DX class used for the next step.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col">
+          <h3 class="col-title">Agreement and resolution</h3>
+
+          <div class="agreement agreement--compact">
+            <div>
+              <div class="agree-num">69<span class="stat-unit">%</span></div>
+              <div class="agree-cap">A1 &amp; A2 label agreement<br/><span class="muted">&kappa; = 0.51</span></div>
+            </div>
+            <div>
+              <div class="agree-num">77<span class="stat-unit">%</span></div>
+              <div class="agree-cap">A1 &amp; A3 label agreement<br/><span class="muted">&kappa; = 0.61</span></div>
+            </div>
+          </div>
+
+          <div class="rule-card">
+            <div class="rule-tag">Conflict rule</div>
+            <p>If the majority label appeared in annotators' possible-label lists, they used majority vote. That covered <strong>83%</strong> of users.</p>
+          </div>
+
+          <div class="rule-card">
+            <div class="rule-tag">Conservative fallback</div>
+            <p>Remaining ambiguous users got the <strong>most negative</strong> label: choose <strong>N</strong> over PN, and <strong>PN</strong> over PP.</p>
+          </div>
+
+          <div class="distribution-strip" aria-label="Final DX label distribution">
+            <span><strong>56%</strong> N</span>
+            <span><strong>22%</strong> PN</span>
+            <span><strong>22%</strong> PP</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide slide--ddx-resolution" data-title="DDX Label Resolution">
+      <header class="slide-header">
+        <div class="slide-kicker">Ground truth &middot; annotation</div>
+        <h2>DDX labels: choosing the diagnosis day is harder</h2>
+        <p class="slide-lede">After DX identifies PP users, DDX asks for one calendar day: when the user likely learned the diagnosis.</p>
+      </header>
+
+      <div class="two-col">
+        <div class="col">
+          <h3 class="col-title"><span class="phase-tag">Phase 3</span> Exact-day annotation</h3>
+          <p>For <strong>105 PP users</strong>, annotators looked for a sudden shift into specific pathology, type, stage, or grading queries after biopsy-related searches.</p>
+
+          <div class="agreement">
+            <div>
+              <div class="agree-num">46<span class="stat-unit">%</span></div>
+              <div class="agree-cap">A1 &amp; A2 exact-day DDX<br/><span class="muted">avg. disagreement 15.3 d</span></div>
+            </div>
+            <div>
+              <div class="agree-num">63<span class="stat-unit">%</span></div>
+              <div class="agree-cap">A1 &amp; A3 exact-day DDX<br/><span class="muted">avg. disagreement 5.7 d</span></div>
+            </div>
+          </div>
+
+          <p class="ddx-reminder">DX = who looks like PP? &middot; DDX = when is day 0?</p>
+        </div>
+
+        <div class="col">
+          <h3 class="col-title">Date conflict resolution</h3>
+
+          <div class="rule-card">
+            <div class="rule-tag">Large disagreement</div>
+            <p>DDX dates that differed by <strong>more than 7 days</strong> were discussed and resolved by the annotators.</p>
+          </div>
+
+          <div class="rule-card">
+            <div class="rule-tag">Small disagreement</div>
+            <p>When annotators were within <strong>1-7 days</strong>, the paper chose the <strong>later</strong> day, because pathology confirmation often follows the first suspicious signal.</p>
+          </div>
+
+          <div class="rule-card rule-card--accent">
+            <div class="rule-tag">Why the lower agreement?</div>
+            <p>There is only one true positive day per user history, so exact-day labeling is much more fragile than deciding whether the user is PP.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="deprecated-slide" data-title="Ground Truth (3)">
       <header class="slide-header">
         <div class="slide-kicker">Ground truth · annotation</div>
         <h2>Phase 3 <span class="amp">&amp;</span> Conflict Resolution</h2>
@@ -725,6 +1239,20 @@
 
       <div class="callout">
         The DX model collapses each user to <strong>one row</strong> of feature values — ontology-category counts &amp; ratios plus behavioral features (volume, temporal, boundary, conjunctions). MART then learns which combinations predict <strong>P(user = PP)</strong>.
+      </div>
+    </section>
+
+    <!-- =========================================================== -->
+    <!-- SECTION 3                                                    -->
+    <!-- =========================================================== -->
+    <section class="slide slide--section section--models" data-title="Section 3">
+      <div class="section-shell">
+        <div class="section-num">03</div>
+        <div>
+          <div class="slide-kicker">Models</div>
+          <h2>Predict who, then when</h2>
+          <p>DX detects likely personally diagnosed searchers; DDX estimates the diagnosis day.</p>
+        </div>
       </div>
     </section>
 
@@ -1030,6 +1558,20 @@
     </section>
 
     <!-- =========================================================== -->
+    <!-- SECTION 4                                                    -->
+    <!-- =========================================================== -->
+    <section class="slide slide--section section--evaluation" data-title="Section 4">
+      <div class="section-shell">
+        <div class="section-num">04</div>
+        <div>
+          <div class="slide-kicker">Evaluation and validation</div>
+          <h2>How do we know the predictions make sense?</h2>
+          <p>First use labeled examples, then check aggregate patterns against external data.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================== -->
     <!-- SLIDE 14 — EVALUATION                                         -->
     <!-- =========================================================== -->
     <section class="slide slide--evaluation" data-title="Evaluation">
@@ -1081,7 +1623,7 @@
         </div>
         <div class="mini">
           <strong>Ablation insight</strong>
-          <p>Removing the <em>DESCRIPTION</em> category (type / stage / grade terms) hurts DDX accuracy most, making descriptive cancer terms the strongest timing signal.</p>
+          <p>Feature importance is task-specific: the useful signal for finding likely PP users is not the same as the signal for locating day 0.</p>
         </div>
       </div>
 
@@ -1089,7 +1631,130 @@
     </section>
 
     <!-- =========================================================== -->
-    <!-- SLIDE 15 — EPIDEMIOLOGICAL VALIDATION                         -->
+    <!-- SLIDE 14B — TABLE V DETAIL                                  -->
+    <!-- =========================================================== -->
+    <section class="slide slide--table-v" data-title="Table V DDX">
+      <header class="slide-header">
+        <div class="slide-kicker">From the paper · Table V</div>
+        <h2>Full DDX feature comparison</h2>
+        <p class="slide-lede">The DDX table is important because the full model is strong, but not every feature helps every timing metric.</p>
+      </header>
+
+      <div class="table-v-layout">
+        <div class="table-v-frame">
+          <img src="images/table5.png" alt="Table V — cross-validation performance with confidence intervals for the DDX classifiers." />
+        </div>
+
+        <aside class="table-v-notes">
+          <ul>
+            <li><strong>Lexical + Day-Of</strong> gives the best exact-day accuracy in both recall settings.</li>
+            <li><strong>Lexical + Query</strong> is best at 7/15 days for 100% recall.</li>
+            <li><strong>Full model</strong> is best for 15-day accuracy at 25% recall: <strong>99.0%</strong>.</li>
+            <li>The feature set is not “more is always better”; the useful signal depends on the metric.</li>
+          </ul>
+        </aside>
+      </div>
+    </section>
+
+    <!-- =========================================================== -->
+    <!-- SLIDE 14C — ABLATION DETAIL                                 -->
+    <!-- =========================================================== -->
+    <section class="slide slide--ablation-detail" data-title="Ablation Detail">
+      <header class="slide-header">
+        <div class="slide-kicker">Feature ablation</div>
+        <h2>Which category mattered most?</h2>
+        <p class="slide-lede">The authors removed one high-level ontology category at a time before recomputing features. The strongest category depends on the task.</p>
+      </header>
+
+      <div class="ablation-compare">
+        <article class="ablation-card ablation-card--dx">
+          <div class="task-chip">DX · who?</div>
+          <h3><span>DIAGNOSIS</span> mattered most</h3>
+          <p>For identifying likely PP searchers, removing diagnosis-related terms produced the lowest DX scores: <strong>F1 = 73.5%</strong> and <strong>Rec@90 = 31.2%</strong>.</p>
+          <div class="signal-strip">
+            <span>diagnosis</span>
+            <span>diagnosed</span>
+            <span>biopsy</span>
+            <span>screening</span>
+          </div>
+        </article>
+
+        <article class="ablation-card ablation-card--ddx">
+          <div class="task-chip">DDX · when?</div>
+          <h3><span>DESCRIPTION</span> mattered most</h3>
+          <p>For locating diagnosis day, removing cancer type / stage / grade terms hurt DDX most. Exact-day accuracy dropped to <strong>32%</strong> from about <strong>43%</strong> at full recall, and to <strong>52%</strong> from about <strong>73%</strong> at 25% recall.</p>
+          <div class="signal-strip">
+            <span>IDC</span>
+            <span>stage 2a</span>
+            <span>grade</span>
+            <span>ductal</span>
+          </div>
+        </article>
+      </div>
+
+      <div class="callout fragment">
+        <strong>Takeaway:</strong> DX asks whether the user looks personally involved in diagnosis; DDX asks when the specific diagnosis information suddenly appears.
+      </div>
+    </section>
+
+    <!-- =========================================================== -->
+    <!-- SLIDE 15 — STATE-LEVEL VALIDATION VISUAL                    -->
+    <!-- =========================================================== -->
+    <section class="slide slide--state-validation" data-title="State Correlation">
+      <header class="slide-header">
+        <div class="slide-kicker">Validation without medical records</div>
+        <h2>Do predicted users line up with real incidence?</h2>
+        <p class="slide-lede">The geographic test compares <strong>state-level aggregates</strong>: where the classifier predicts more likely PP users, do CDC breast-cancer incidence rates also tend to be higher?</p>
+      </header>
+
+      <div class="state-validation-grid">
+        <section class="state-map-panel">
+          <div class="panel-label">Bing classifier output</div>
+          <h3>Predicted PP density by state</h3>
+          <div class="tile-map" aria-label="Schematic state tile map">
+            <span class="tile tile--empty"></span><span class="tile tile--1"></span><span class="tile tile--2"></span><span class="tile tile--3"></span><span class="tile tile--2"></span><span class="tile tile--4"></span><span class="tile tile--3"></span><span class="tile tile--2"></span><span class="tile tile--1"></span><span class="tile tile--empty"></span>
+            <span class="tile tile--1"></span><span class="tile tile--2"></span><span class="tile tile--4"></span><span class="tile tile--5"></span><span class="tile tile--3"></span><span class="tile tile--5"></span><span class="tile tile--4"></span><span class="tile tile--3"></span><span class="tile tile--2"></span><span class="tile tile--1"></span>
+            <span class="tile tile--2"></span><span class="tile tile--3"></span><span class="tile tile--5"></span><span class="tile tile--4"></span><span class="tile tile--2"></span><span class="tile tile--3"></span><span class="tile tile--5"></span><span class="tile tile--4"></span><span class="tile tile--2"></span><span class="tile tile--1"></span>
+            <span class="tile tile--empty"></span><span class="tile tile--2"></span><span class="tile tile--3"></span><span class="tile tile--2"></span><span class="tile tile--1"></span><span class="tile tile--2"></span><span class="tile tile--3"></span><span class="tile tile--5"></span><span class="tile tile--4"></span><span class="tile tile--2"></span>
+            <span class="tile tile--empty"></span><span class="tile tile--empty"></span><span class="tile tile--1"></span><span class="tile tile--2"></span><span class="tile tile--2"></span><span class="tile tile--3"></span><span class="tile tile--4"></span><span class="tile tile--3"></span><span class="tile tile--2"></span><span class="tile tile--empty"></span>
+          </div>
+          <div class="map-legend">
+            <span>lower predicted density</span>
+            <div class="legend-ramp"></div>
+            <span>higher</span>
+          </div>
+        </section>
+
+        <div class="state-correlation-badge">
+          <span>state-level</span>
+          <strong>r = 0.348</strong>
+          <small>vs. raw pool r = 0.036</small>
+        </div>
+
+        <section class="state-chart-panel">
+          <div class="panel-label">External reference</div>
+          <h3>CDC incidence by state</h3>
+          <svg class="state-scatter" viewBox="0 0 420 300" role="img" aria-label="Schematic scatter plot of CDC incidence and predicted PP density">
+            <line x1="54" y1="244" x2="382" y2="244" class="axis" />
+            <line x1="54" y1="244" x2="54" y2="34" class="axis" />
+            <line x1="74" y1="218" x2="356" y2="72" class="trend" />
+            <circle cx="82" cy="204" r="5" class="dot" /><circle cx="104" cy="196" r="5" class="dot dot--muted" />
+            <circle cx="128" cy="174" r="5" class="dot" /><circle cx="154" cy="188" r="5" class="dot dot--muted" />
+            <circle cx="176" cy="146" r="5" class="dot" /><circle cx="198" cy="160" r="5" class="dot" />
+            <circle cx="224" cy="130" r="5" class="dot dot--muted" /><circle cx="248" cy="138" r="5" class="dot" />
+            <circle cx="272" cy="106" r="5" class="dot" /><circle cx="296" cy="120" r="5" class="dot dot--muted" />
+            <circle cx="322" cy="88" r="5" class="dot" /><circle cx="346" cy="96" r="5" class="dot" />
+            <text x="218" y="286" class="axis-label">CDC breast-cancer incidence</text>
+            <text x="-154" y="18" transform="rotate(-90)" class="axis-label">predicted PP density</text>
+          </svg>
+        </section>
+      </div>
+
+      <p class="figure-caption">Schematic visualization of the paper's geographic validation; the paper reports the correlation, not per-state values.</p>
+    </section>
+
+    <!-- =========================================================== -->
+    <!-- SLIDE 16 — EPIDEMIOLOGICAL VALIDATION                         -->
     <!-- =========================================================== -->
     <section class="slide" data-title="Epi Validation">
       <header class="slide-header">
@@ -1130,6 +1795,20 @@
               <div class="demo-cap">aged 65+<br/><span class="muted">vs. 3.6% baseline · 5.4% in wider cohort</span></div>
             </div>
           </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================== -->
+    <!-- SECTION 5                                                    -->
+    <!-- =========================================================== -->
+    <section class="slide slide--section section--episodes" data-title="Section 5">
+      <div class="section-shell">
+        <div class="section-num">05</div>
+        <div>
+          <div class="slide-kicker">Episode discovery</div>
+          <h2>What changes after timelines are aligned?</h2>
+          <p>Once histories are aligned to inferred DDX, the paper studies phases of attention over time.</p>
         </div>
       </div>
     </section>
@@ -1357,6 +2036,20 @@
       <p class="figure-caption">
         Stage IV-associated searchers spike <em>lower</em> on screening and <em>higher and longer</em> on chemotherapy — patterns consistent with the clinical course of more advanced disease.
       </p>
+    </section>
+
+    <!-- =========================================================== -->
+    <!-- SECTION 6                                                    -->
+    <!-- =========================================================== -->
+    <section class="slide slide--section section--limits" data-title="Section 6">
+      <div class="section-shell">
+        <div class="section-num">06</div>
+        <div>
+          <div class="slide-kicker">Limits and takeaways</div>
+          <h2>What should we trust, and what should we question?</h2>
+          <p>The final section separates useful aggregate insight from individual-level uncertainty.</p>
+        </div>
+      </div>
     </section>
 
     <!-- =========================================================== -->
